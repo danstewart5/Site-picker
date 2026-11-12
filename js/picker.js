@@ -86,7 +86,16 @@
     s.src = "/clients/" + slug + "/config.js";
     s.onload = function () {
       if (!window.KF_CLIENT || !Array.isArray(window.KF_CLIENT.designs)) { fail("The designs for this link aren't set up yet."); return; }
-      try { start(window.KF_CLIENT); } catch (err) { fail("Something went wrong loading the designs."); if (window.console) console.warn(err); }
+      var go = function () { try { start(window.KF_CLIENT); } catch (err) { fail("Something went wrong loading the designs."); if (window.console) console.warn(err); } };
+      /* Optional client stylesheet (config "css"), loaded before the first render. */
+      var css = window.KF_CLIENT.css;
+      if (typeof css === "string" && /^\/clients\/[a-z0-9-]+\/[\w.-]+\.css$/.test(css)) {
+        var l = document.createElement("link"), done = false;
+        var once = function () { if (!done) { done = true; go(); } };
+        l.rel = "stylesheet"; l.href = css; l.onload = once; l.onerror = once;
+        setTimeout(once, 4000);
+        document.head.appendChild(l);
+      } else go();
     };
     s.onerror = function () { fail("We couldn't find designs for this link. It may have a typo."); };
     document.head.appendChild(s);
@@ -105,8 +114,12 @@
   }
   function layoutFor(id, letter) {
     var d = design(letter);
-    var l = d.layouts && d.layouts[id];
-    return LETTERS.indexOf(l) > -1 ? l : letter;
+    var l = (d.layouts && d.layouts[id]) || d.layout;
+    /* A design can use another letter's layout, or a client's own layout (registered in its config,
+       e.g. layout: "smith" uses KF_RENDER.hero.smith and styles scoped to .v-smith). */
+    if (LETTERS.indexOf(l) > -1) return l;
+    if (typeof l === "string" && /^[a-z][a-z0-9-]{0,30}$/.test(l) && window.KF_RENDER[id] && typeof window.KF_RENDER[id][l] === "function") return l;
+    return letter;
   }
   function shown(id) { return S.picks[id] || designs[0].id; }
   function palette() { return palettes.filter(function (p) { return p.id === S.palette; })[0] || palettes[0]; }
@@ -153,6 +166,13 @@
     buildAddons();
     bind();
     setSize(S.size);
+
+    /* "Starting point" note: hide for good once dismissed. */
+    var note = $("#k-start-note");
+    if (note) {
+      try { if (localStorage.getItem("kf-start-note-hidden") === "1") note.hidden = true; } catch (e) {}
+      $("#k-start-x").addEventListener("click", function () { note.hidden = true; try { localStorage.setItem("kf-start-note-hidden", "1"); } catch (e) {} measurePanel(); });
+    }
 
     $("#k-loading").hidden = true;
     show(S.sent && S.view === "done" ? "done" : (["design", "addons", "review"].indexOf(S.view) > -1 ? S.view : "design"), true);
@@ -567,7 +587,7 @@
         S.sent = true;
         var first = data.name.split(" ")[0];
         $("#k-done-title").textContent = "Thanks, " + first + "! Your picks are in.";
-        $("#k-done-text").innerHTML = esc(SET.owner || "We") + " will look them over and be in touch soon. " + (contactLine() ? "Questions in the meantime? " + contactLine() : "");
+        $("#k-done-text").innerHTML = esc(SET.owner || "We") + " will take your picks and notes, customize the site for your business, and send you back a polished version. " + (contactLine() ? "Questions in the meantime? " + contactLine() : "");
         show("done");
       })
       .catch(function () {

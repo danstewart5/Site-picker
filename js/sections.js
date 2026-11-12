@@ -440,5 +440,5 @@
   };
 
   window.KF_RENDER = R;
-  window.KF_UTIL = { esc: esc, icon: icon, resetPh: function (n) { phCount = n || 0; } };
+  window.KF_UTIL = { esc: esc, icon: icon, T: T, media: media, list: list, stars: stars, logo: logo, resetPh: function (n) { phCount = n || 0; } };
 })();

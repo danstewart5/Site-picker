@@ -153,6 +153,7 @@ function systemPrompt(ctx) {
     "- Under each section's options there is a box for anything else (a different photo, another service, a new section), and reaction buttons like Love it, Good, Not for me, The photos, The layout.",
     "- Step 2, Extras: an optional checklist of add-ons.",
     "- Step 3, Send: they review their picks, add their name and email, and tap \"Send my picks\".",
+    "- After they send: " + owner + " takes their picks and notes as a starting point, customizes the site for their business, and sends them back a polished version to look over. Nothing they pick here is final.",
     "",
     "Rules:",
     "- Reply in 2 to 4 short sentences of plain, warm English that reads well on a phone. No markdown, lists or headings.",

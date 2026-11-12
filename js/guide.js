@@ -48,8 +48,8 @@
   function tipFor(st) {
     var s = st || P.state();
     if (s.view === "addons") return { t: "These are optional extras. Tick anything that sounds useful, or leave it and " + owner() + " can talk it through with you. When you're ready, tap Review & send.", q: [CHIPS.next, CHIPS.what] };
-    if (s.view === "review") return { t: "Last step: check your picks, add your name and email, then tap Send my picks. " + owner() + " will look them over and follow up with you.", q: [CHIPS.what] };
-    if (s.view === "done") return { t: "You're all set, your picks are in! " + owner() + " will be in touch soon.", q: [] };
+    if (s.view === "review") return { t: "Last step: check your picks, add your name and email, then tap Send my picks. Your picks are a starting point: " + owner() + " will customize the site for your business from your choices and notes, and send you back a polished version.", q: [CHIPS.what] };
+    if (s.view === "done") return { t: "You're all set, your picks are in! " + owner() + " will customize the site for your business and send you back a polished version.", q: [] };
     var step = s.step;
     var where = "Step " + (step.index + 1) + " of " + step.total + ": ";
     if (step.type === "palette") return { t: where + "pick a colour theme. Tap each one and watch the preview change.", q: [CHIPS.next, CHIPS.what] };
