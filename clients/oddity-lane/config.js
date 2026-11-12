@@ -7,8 +7,9 @@
     C  Maker Market            clean and crafty: vendors, workshops and applying to vend
     D  The Original            Dan's first Oddity Lane sample site, as built: blush pink, chunky ink outlines,
                                the tap-me eye, themed flyers, the House Collection pendants, tarot cards.
-                               Looks exactly like the original with the "Blush & candy" colours and
-                               "Playful & hand-drawn" fonts; it also follows any other colour theme.
+                               The first tap on D switches to the "Blush & candy" colours and
+                               "Playful & hand-drawn" fonts (the true original look); the client can
+                               still change them, and D follows any other colour theme.
   Sections: services = what's on, gallery = the markets / makers, reviews = "Why people linger" perks (B)
   or clearly labelled placeholders (A, C). No real reviews yet: never replace them with made-up names.
   No phone, email, street address or market dates are confirmed yet, so none are shown.
@@ -307,7 +308,9 @@
         } },
 
       /* ---------- D: The Original (Dan's first Oddity Lane sample site, as built) ---------- */
-      { name: "The Original", blurb: "Playful, hand-drawn, blush pink with chunky outlines",
+      { name: "The Original", blurb: "Your original Oddity Lane site", badge: "Original",
+        /* Tapping D the first time switches to the original colours and fonts; the client can still change them. */
+        palette: "original", font: "original",
         content: {
           hero: {
             brand: "Oddity Lane Market",

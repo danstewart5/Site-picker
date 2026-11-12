@@ -82,6 +82,7 @@ button { cursor: pointer; }
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.15; }
 .k-opt .l { font-weight: 800; font-size: 1.05rem; }
 .k-opt .d { font-size: .74rem; color: var(--k-ink-2); text-align: center; }
+.k-opt-badge { margin-top: 2px; padding: 0 6px; border-radius: 99px; background: #f6d56b; color: #1f1a3a; font-size: .64rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; line-height: 1.5; }
 .k-opt.showing { border-style: dashed; border-color: #9aa5b1; }
 .k-opt[aria-pressed="true"] { border-color: var(--k-brand); border-style: solid; background: var(--k-brand-soft); box-shadow: inset 0 0 0 1px var(--k-brand); }
 .k-opt[aria-pressed="true"] .l::after { content: " \2713"; color: var(--k-brand); }

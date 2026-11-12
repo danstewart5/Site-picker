@@ -12,7 +12,7 @@
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
 
   var C, slug, designs, palettes, fonts, sections, steps, storeKey;
-  var S = { picks: {}, palette: null, font: null, edits: {}, requests: {}, reactions: {}, addons: [], form: {}, view: "design", step: 0, size: "desktop", sent: false, helperUsed: false };
+  var S = { picks: {}, palette: null, font: null, edits: {}, requests: {}, reactions: {}, autoStyled: {}, addons: [], form: {}, view: "design", step: 0, size: "desktop", sent: false, helperUsed: false };
   var SPEECH = window.KF_SPEECH || { supported: false, ios: false, button: function () { return ""; } };
 
   /* Quick reactions under each section's options. "feel" ones are one-of-three; the rest can be combined. */
@@ -47,7 +47,7 @@
       if (!raw) return;
       var d = JSON.parse(raw);
       if (!d || typeof d !== "object") return;
-      ["picks", "edits", "requests", "reactions", "form"].forEach(function (k) { if (d[k] && typeof d[k] === "object") S[k] = d[k]; });
+      ["picks", "edits", "requests", "reactions", "form", "autoStyled"].forEach(function (k) { if (d[k] && typeof d[k] === "object") S[k] = d[k]; });
       if (Array.isArray(d.addons)) S.addons = d.addons.filter(function (x) { return typeof x === "string"; });
       ["palette", "font", "view", "size"].forEach(function (k) { if (typeof d[k] === "string") S[k] = d[k]; });
       if (typeof d.step === "number") S.step = d.step;
@@ -171,6 +171,17 @@
     document.head.appendChild(l);
   }
 
+  /* A design can opt in to its own colours/fonts (config: designs[i].palette / .font).
+     They switch on the first tap of that design only, so the client can still change them afterward. */
+  function autoStyle(letter) {
+    var d = design(letter);
+    if (!d || d.id !== letter || (!d.palette && !d.font) || S.autoStyled[letter]) return;
+    S.autoStyled[letter] = true;
+    if (d.palette && palettes.some(function (p) { return p.id === d.palette; })) S.palette = d.palette;
+    if (d.font && fonts.some(function (f) { return f.id === d.font; })) S.font = d.font;
+    applyStyle();
+  }
+
   function applyStyle() {
     var p = palette(), f = font(), st = $("#site").style;
     var map = { bg: "--c-bg", surface: "--c-surface", text: "--c-text", muted: "--c-muted", primary: "--c-primary", onPrimary: "--c-on-primary",
@@ -252,7 +263,8 @@
       if (st.type === "section") {
         opts = designs.map(function (d) {
           return '<button type="button" class="k-opt" data-sec="' + st.id + '" data-v="' + d.id + '" aria-pressed="false" aria-label="' +
-            esc(st.label) + ": option " + d.id + '"><span class="l">' + d.id + '</span><span class="d">Option ' + d.id + "</span></button>";
+            esc(st.label) + ": option " + d.id + (d.badge ? ", " + esc(d.badge) : "") + '"' + (d.blurb ? ' title="' + esc(d.blurb) + '"' : "") + '><span class="l">' + d.id + '</span><span class="d">Option ' + d.id + "</span>" +
+            (d.badge ? '<span class="k-opt-badge">' + esc(d.badge) + "</span>" : "") + "</button>";
         }).join("");
       } else if (st.type === "palette") {
         opts = palettes.map(function (p) {
@@ -480,7 +492,7 @@
   function renderSummary() {
     var tc = textChanges();
     var sec = sections.map(function (s) {
-      return "<dt>" + esc(s.label) + "</dt><dd>" + (S.picks[s.id] ? "Option " + esc(S.picks[s.id]) : '<span class="warn">Not picked (showing ' + esc(shown(s.id)) + ")</span>") + "</dd>";
+      return "<dt>" + esc(s.label) + "</dt><dd>" + (S.picks[s.id] ? "Option " + esc(S.picks[s.id]) + (design(S.picks[s.id]).badge ? " (" + esc(design(S.picks[s.id]).badge) + ")" : "") : '<span class="warn">Not picked (showing ' + esc(shown(s.id)) + ")</span>") + "</dd>";
     }).join("");
     var missing = sections.length - pickedCount();
     $("#k-summary").innerHTML =
@@ -608,6 +620,7 @@
       } else if (t.hasAttribute("data-sec")) {
         var sid = t.getAttribute("data-sec");
         S.picks[sid] = t.getAttribute("data-v");
+        autoStyle(S.picks[sid]);
         renderSection(sid);
         steps.forEach(function (s, i) { if (s.id === sid) S.step = i; });
         updatePanel(); scrollToSection(sid); save();
