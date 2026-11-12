@@ -182,3 +182,9 @@ body.typing .k-panel { transform: translateY(110%); }
 .k-addon-price.inline { margin: 0 0 0 6px; font-size: .88rem; }
 .k-total { margin: 12px 0 0; padding: 12px; border-radius: 10px; background: rgba(0,0,0,.04); }
 .k-note { font-size: .85rem; color: var(--k-ink-2); }
+.k-req { margin-top: 10px; border: 1px dashed #b9c2cc; border-radius: 10px; background: #fff; }
+.k-req summary { cursor: pointer; padding: 12px; min-height: 44px; font-weight: 650; font-size: .9rem; color: var(--k-brand); list-style: none; }
+.k-req summary::-webkit-details-marker { display: none; }
+.k-req[open] summary { border-bottom: 1px dashed #d4dae0; }
+.k-req-tip { margin: 10px 12px 6px; font-size: .85rem; color: var(--k-ink-2); }
+.k-req-box { display: block; width: calc(100% - 24px); margin: 0 12px 12px; padding: 10px; font: inherit; font-size: 16px; border: 1px solid #b9c2cc; border-radius: 8px; resize: vertical; }

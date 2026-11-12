@@ -12,7 +12,7 @@
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
 
   var C, slug, designs, palettes, fonts, sections, steps, storeKey;
-  var S = { picks: {}, palette: null, font: null, edits: {}, addons: [], form: {}, view: "design", step: 0, size: "desktop", sent: false };
+  var S = { picks: {}, palette: null, font: null, edits: {}, requests: {}, addons: [], form: {}, view: "design", step: 0, size: "desktop", sent: false };
   var editing = false, suppressScrollSync = 0, saveTimer = null;
 
   /* ---------- storage (never throws) ---------- */
@@ -32,7 +32,7 @@
       if (!raw) return;
       var d = JSON.parse(raw);
       if (!d || typeof d !== "object") return;
-      ["picks", "edits", "form"].forEach(function (k) { if (d[k] && typeof d[k] === "object") S[k] = d[k]; });
+      ["picks", "edits", "requests", "form"].forEach(function (k) { if (d[k] && typeof d[k] === "object") S[k] = d[k]; });
       if (Array.isArray(d.addons)) S.addons = d.addons.filter(function (x) { return typeof x === "string"; });
       ["palette", "font", "view", "size"].forEach(function (k) { if (typeof d[k] === "string") S[k] = d[k]; });
       if (typeof d.step === "number") S.step = d.step;
@@ -250,7 +250,12 @@
       return '<div class="k-row" id="row-' + st.id + '" data-step="' + i + '">' +
         '<div class="k-row-head"><h2>' + (i + 1) + ". " + esc(st.label) + "<small>" + esc(st.hint || "") + '</small></h2><span class="k-status" id="status-' + st.id + '"></span></div>' +
         '<div class="k-opts" role="group" aria-label="' + esc(st.label) + '" style="--n:' + Math.min(n, 4) + '">' + opts + "</div>" +
-        '<div class="k-edits-note" id="edits-' + st.id + '" hidden></div></div>';
+        '<div class="k-edits-note" id="edits-' + st.id + '" hidden></div>' +
+        (st.type === "section" ?
+          '<details class="k-req"' + (S.requests[st.id] ? " open" : "") + '><summary>✎ Change the wording or ask for something different</summary>' +
+          '<p class="k-req-tip">Tap <strong>Edit text</strong> to type your own words right on the page. For anything you can\'t change there (a different photo, another service, a new section), write it here.</p>' +
+          '<textarea class="k-req-box" data-req="' + st.id + '" rows="3" placeholder="e.g. Use a photo of our shop here, add a service, say it in my own words…">' + esc(S.requests[st.id] || "") + '</textarea></details>' : "") +
+        "</div>";
     }).join("");
     $("#k-rows").innerHTML = html;
     updatePanel();
@@ -385,6 +390,11 @@
   /* ---------- review ---------- */
   function addonName(id) { var a = addonList().filter(function (x) { return x.id === id; })[0]; return a ? a.name : id; }
 
+  function requestList() {
+    return sections.filter(function (s) { return (S.requests[s.id] || "").trim(); })
+      .map(function (s) { return { section: s.label, text: S.requests[s.id].trim() }; });
+  }
+
   function textChanges() {
     var out = [];
     sections.forEach(function (s) {
@@ -416,6 +426,9 @@
       '<section class="k-summary"><h2>Wording changes <button type="button" class="k-btn small" data-go="design">Change</button></h2>' +
         (tc.length ? "<ul>" + tc.map(function (t) { return "<li><strong>" + esc(t.section) + ":</strong> “" + esc(t.text) + "”</li>"; }).join("") + "</ul>"
                    : '<p class="none">No changes. Use “Edit text” on the design step to change any wording.</p>') + "</section>" +
+      '<section class="k-summary"><h2>Other changes you asked for <button type="button" class="k-btn small" data-go="design">Change</button></h2>' +
+        (requestList().length ? "<ul>" + requestList().map(function (r) { return "<li><strong>" + esc(r.section) + ":</strong> " + esc(r.text) + "</li>"; }).join("") + "</ul>"
+                   : '<p class="none">None. Each section has a box where you can describe anything else you\'d like changed.</p>') + "</section>" +
       '<section class="k-summary"><h2>Extras <button type="button" class="k-btn small" data-go="addons">Change</button></h2>' +
         (S.addons.length ? "<ul>" + S.addons.map(function (id) { return "<li>" + esc(addonName(id)) + (priceText(id) ? ' <span class="k-addon-price inline">' + esc(priceText(id)) + "</span>" : "") + "</li>"; }).join("") + "</ul>" +
           ""
@@ -443,9 +456,10 @@
       sections: sectionsText(),
       style: "Colours: " + palette().name + "\nFonts: " + font().name,
       text_changes: tc.length ? tc.map(function (t) { return "[" + t.section + " / " + t.key + "]\nWas: " + t.was + "\nNow: " + t.text; }).join("\n\n") : "None",
+      change_requests: requestList().length ? requestList().map(function (r) { return "[" + r.section + "] " + r.text; }).join("\n\n") : "None",
       addons: S.addons.length ? S.addons.map(function (id) { return addonName(id) + (priceText(id) ? " (" + priceText(id) + ")" : ""); }).join("\n") + "" : "None",
       price_estimate: totalText() ? totalText() + " | " + dueTodayText() : "",
-      picks_json: JSON.stringify({ client: slug, business: C.businessName, picks: picks, palette: S.palette, font: S.font, edits: edits, addons: S.addons, page: location.href, sentAt: new Date().toISOString() })
+      picks_json: JSON.stringify({ client: slug, business: C.businessName, picks: picks, palette: S.palette, font: S.font, edits: edits, requests: S.requests, addons: S.addons, page: location.href, sentAt: new Date().toISOString() })
     };
   }
 
@@ -474,7 +488,7 @@
         show("done");
       })
       .catch(function () {
-        var body = "Picks for " + C.businessName + "\n\n" + data.sections + "\n\n" + data.style + "\n\nExtras:\n" + data.addons + "\n\nText changes:\n" + data.text_changes +
+        var body = "Picks for " + C.businessName + "\n\n" + data.sections + "\n\n" + data.style + "\n\nExtras:\n" + data.addons + "\n\nText changes:\n" + data.text_changes + "\n\nOther changes:\n" + data.change_requests +
           "\n\nName: " + data.name + "\nEmail: " + data.email + "\nPhone: " + data.phone + "\nNotes: " + data.notes;
         var mail = SET.email ? ' or <a href="mailto:' + esc(SET.email) + "?subject=" + encodeURIComponent("Website picks - " + C.businessName) + "&body=" + encodeURIComponent(body.slice(0, 1800)) + '">email your picks instead</a>' : "";
         box.innerHTML = "Sorry, that didn't send. Please check your connection and try again" + mail + ".";
@@ -552,13 +566,19 @@
         setEditing(false);
       } else if (t.id === "k-reset") {
         if (window.confirm("Clear all your picks and start again?")) {
-          S = { picks: {}, palette: C.defaultPalette || palettes[0].id, font: C.defaultFont || fonts[0].id, edits: {}, addons: [], form: S.form, view: "design", step: 0, size: S.size, sent: false };
-          renderSite(); applyStyle(); buildAddons(); updatePanel(); show("design");
+          S = { picks: {}, palette: C.defaultPalette || palettes[0].id, font: C.defaultFont || fonts[0].id, edits: {}, requests: {}, addons: [], form: S.form, view: "design", step: 0, size: S.size, sent: false };
+          renderSite(); applyStyle(); buildPanel(); buildAddons(); updatePanel(); show("design");
         }
       }
     });
 
     var site = $("#site");
+    $("#k-rows").addEventListener("input", function (e) {
+      var t = e.target; if (!t.matches || !t.matches(".k-req-box")) return;
+      var id = t.getAttribute("data-req"), v = t.value;
+      if (v.trim()) S.requests[id] = v; else delete S.requests[id];
+      save();
+    });
     site.addEventListener("input", function (e) { var n = e.target.closest && e.target.closest("[data-edit]"); if (n) recordEdit(n); });
     site.addEventListener("paste", function (e) {
       if (!editing) return;
