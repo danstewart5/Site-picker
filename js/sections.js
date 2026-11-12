@@ -111,7 +111,9 @@
     },
     C: function (c, ctx) {
       var ims = list(c.images).length ? c.images : [c.image, c.image, c.image];
-      return '<div class="topbar">' + icon("phone") + "<span>" + esc(ctx.contact.phone || "") + '</span><span class="topbar-sep" aria-hidden="true">•</span><span>' + esc(ctx.contact.area || "") + "</span></div>" +
+      var k = ctx.contact || {};
+      return '<div class="topbar">' + (k.phone ? icon("phone") + "<span>" + esc(k.phone) + "</span>" + (k.area ? '<span class="topbar-sep" aria-hidden="true">•</span>' : "") : icon("pin")) +
+        "<span>" + esc(k.area || "") + "</span></div>" +
         '<header class="nav nav-c">' + navLinks(ctx) + logo(ctx) + '<span class="burger" aria-hidden="true">' + icon("menu") + "</span></header>" +
         '<div class="wrap hero-c">' +
           T("p", "eyebrow", c.eyebrow, "eyebrow") + T("h1", "headline", c.headline) +
@@ -262,7 +264,7 @@
       var k = ctx.contact;
       return '<div class="wrap contact-b">' + T("h2", "title", c.title) + T("p", "body", c.body, "lead") +
         '<div class="btns center">' + '<span class="btn accent">' + icon("phone") + "<span>" + esc(c.cta || "Call") + "</span></span>" +
-        '<span class="btn ghost">' + icon("chat") + "<span>Text " + esc(k.phone || "") + "</span></span></div>" +
+        (k.phone ? '<span class="btn ghost">' + icon("chat") + "<span>Text " + esc(k.phone) + "</span></span>" : "") + "</div>" +
         (list(c.hours).length ? '<p class="fine">' + list(c.hours).map(function (h) { return esc(h.days + " " + h.time); }).join(" · ") + "</p>" : "") + "</div>";
     },
     C: function (c, ctx) {
@@ -281,7 +283,7 @@
       var k = ctx.contact;
       return '<div class="wrap foot-a"><div class="foot-brand">' + logo(ctx) + T("p", "blurb", c.blurb) + "</div>" +
         '<div><p class="foot-h">Explore</p><ul>' + list(c.links).map(function (l, i) { return "<li>" + T("span", "links." + i, l) + "</li>"; }).join("") + "</ul></div>" +
-        '<div><p class="foot-h">Contact</p><ul><li>' + esc(k.phone || "") + "</li><li>" + esc(k.email || "") + "</li><li>" + esc(k.area || "") + "</li></ul></div>" +
+        '<div><p class="foot-h">Contact</p><ul>' + [k.phone, k.email, k.area].filter(Boolean).map(function (v) { return "<li>" + esc(v) + "</li>"; }).join("") + "</ul></div>" +
         "</div>" + '<div class="wrap foot-legal">' + T("p", "legal", c.legal) + "</div>";
     },
     B: function (c, ctx) {
@@ -293,7 +295,7 @@
     C: function (c, ctx) {
       var k = ctx.contact;
       return '<div class="foot-c-cta"><div class="wrap">' + T("p", "ctaLine", c.ctaLine || "Ready when you are.", "cta-line") +
-        '<span class="btn">' + icon("phone") + "<span>" + esc(k.phone || "") + "</span></span></div></div>" +
+        (k.phone ? '<span class="btn">' + icon("phone") + "<span>" + esc(k.phone) + "</span></span>" : "") + "</div></div>" +
         '<div class="foot-c"><div class="wrap"><p class="wordmark" aria-hidden="true">' + esc(ctx.biz) + "</p>" +
         '<div class="foot-c-row">' + T("p", "blurb", c.blurb) + '<ul class="inline">' + list(c.links).map(function (l, i) { return "<li>" + T("span", "links." + i, l) + "</li>"; }).join("") + "</ul></div>" +
         T("p", "legal", c.legal, "fine") + "</div></div>";
