@@ -211,14 +211,13 @@
 .site .gal-b { display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: 150px; gap: 10px; }
 .site .gal-b figure { position: relative; border-radius: 14px; overflow: hidden; }
 .site .gal-b .g0 { grid-column: span 2; grid-row: span 2; }
-.site .gal-b .g3 { grid-column: span 2; }
+.site .gal-b .g3, .site .gal-b .g4 { grid-column: span 2; }
 .site .gal-b figcaption { position: absolute; left: 10px; bottom: 10px; z-index: 3; padding: 5px 11px; border-radius: 99px;
   background: var(--c-bg); color: var(--c-text); font-size: .85rem; font-weight: 700; }
 .site .gal-b .ph-label { display: none; }
 @container site (min-width: 760px) {
   .site .gal-b { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 190px; gap: 16px; }
-  .site .gal-b .g3 { grid-column: span 1; }
-  .site .gal-b .g4 { grid-column: span 2; }
+  .site .gal-b .g3, .site .gal-b .g4 { grid-column: span 1; }
 }
 
 /* ---------- GALLERY C: swipe carousel ---------- */

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d9b1"/><stop offset="1" stop-color="#e9b77a"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d9a866"/><stop offset=".5" stop-color="#e8bd7f"/><stop offset="1" stop-color="#d09a55"/></linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#sky)"/>
+  <!-- hills / trees -->
+  <path d="M0 470 C120 420 220 440 320 410 C430 380 520 420 640 395 C710 380 760 392 800 400 V800 H0Z" fill="#7d8a6a"/>
+  <g fill="#4f5d45">
+    <path d="M60 470l26-80 26 80z"/><path d="M96 474l20-62 20 62z"/><path d="M690 430l24-74 24 74z"/><path d="M730 440l18-56 18 56z"/>
+  </g>
+  <rect y="560" width="800" height="240" fill="#8a6a4a"/>
+  <rect y="560" width="800" height="14" fill="#6f5338"/>
+  <!-- framed wall -->
+  <g>
+    <rect x="190" y="250" width="420" height="16" fill="#c48d4a"/>
+    <rect x="190" y="268" width="420" height="16" fill="url(#wood)"/>
+    <rect x="190" y="544" width="420" height="16" fill="url(#wood)"/>
+    <g fill="url(#wood)" stroke="#b47f40" stroke-width="2">
+      <rect x="190" y="284" width="16" height="260"/><rect x="262" y="284" width="16" height="260"/>
+      <rect x="334" y="284" width="16" height="260"/><rect x="450" y="284" width="16" height="260"/>
+      <rect x="522" y="284" width="16" height="260"/><rect x="594" y="284" width="16" height="260"/>
+    </g>
+    <!-- window opening header -->
+    <rect x="350" y="300" width="100" height="22" fill="#c48d4a"/>
+    <rect x="350" y="430" width="100" height="12" fill="url(#wood)"/>
+    <rect x="350" y="442" width="16" height="102" fill="url(#wood)"/><rect x="434" y="442" width="16" height="102" fill="url(#wood)"/>
+    <path d="M206 520 L262 300" stroke="#c48d4a" stroke-width="10"/>
+  </g>
+  <!-- sawhorse with hard hat -->
+  <g>
+    <rect x="70" y="600" width="250" height="18" rx="3" fill="#c9954f"/>
+    <path d="M100 618 L80 720 M130 618 L150 720 M260 618 L240 720 M290 618 L310 720" stroke="#a87638" stroke-width="12" stroke-linecap="round"/>
+    <path d="M140 600 C140 548 180 528 210 528 C240 528 280 548 280 600 Z" fill="#f2b11d"/>
+    <rect x="124" y="592" width="172" height="14" rx="7" fill="#e09f0f"/>
+    <path d="M206 530 V596" stroke="#e7a512" stroke-width="10"/>
+  </g>
+  <!-- tape measure -->
+  <g transform="translate(560 640)">
+    <rect x="0" y="0" width="92" height="84" rx="18" fill="#f2b11d"/>
+    <circle cx="46" cy="42" r="20" fill="#1f1a14"/><circle cx="46" cy="42" r="8" fill="#f2b11d"/>
+    <rect x="88" y="66" width="120" height="14" fill="#f6e7a8"/>
+    <g stroke="#1f1a14" stroke-width="2"><path d="M100 66v7M112 66v5M124 66v7M136 66v5M148 66v7M160 66v5M172 66v7M184 66v5M196 66v7"/></g>
+  </g>
+  <!-- clipboard -->
+  <g transform="translate(372 600) rotate(-6)">
+    <rect x="0" y="0" width="130" height="164" rx="10" fill="#5b4532"/>
+    <rect x="12" y="20" width="106" height="134" rx="4" fill="#fffaf0"/>
+    <rect x="40" y="-6" width="50" height="20" rx="5" fill="#9aa3ad"/>
+    <g stroke="#2b2620" stroke-width="3" stroke-linecap="round">
+      <path d="M26 50l6 6 10-12" stroke="#2f8a4f"/><path d="M52 52h50"/>
+      <path d="M26 82l6 6 10-12" stroke="#2f8a4f"/><path d="M52 84h44"/>
+      <rect x="25" y="106" width="16" height="16" rx="2" fill="none"/><path d="M52 116h50"/>
+    </g>
+  </g>
+</svg>
