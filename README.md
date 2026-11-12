@@ -18,6 +18,9 @@ js/defaults.js          Section list, font pairings, fallback colour themes
 js/addons.js            The "Extras" checklist: edit this to add/remove extras
 js/sections.js          The three layouts (A, B, C) for each section
 js/picker.js            How the picker works
+js/guide.js             The "Need help?" design helper chat
+js/speech.js            Talk-instead-of-type mic buttons
+netlify/functions/guide.js  Server side of the design helper (needs ANTHROPIC_API_KEY)
 clients/<name>/config.js  One folder per client
 clients/_template/      Copy this to start a new client
 ```
@@ -43,11 +46,26 @@ To hide extras that don't fit a client, add `addonsHide: ["online-store", "blog"
 
 ## Where submissions go
 
-Netlify → your site → **Forms** → **site-picks**. Each submission has the client's name, business, email, phone, notes, and readable fields for sections, style, text changes and extras, plus `picks_json` with everything in one block.
+Netlify → your site → **Forms** → **site-picks**. Each submission has the client's name, business, email, phone, notes, and readable fields for sections, style, text changes, reactions ("what you liked"), extras and whether the design helper was used, plus `picks_json` with everything in one block.
 
 To get an email for every submission: Netlify → Site configuration → Notifications → Emails and webhooks → Form submission notifications → Add notification → Email, form `site-picks`.
 
 Note: form detection needs to be on (Netlify → Forms → Enable form detection) the first time, then redeploy once.
+
+## Design helper
+
+A "Need help?" button on the picker opens a chat that walks the client through each step, answers questions and suggests wording (with "Use this wording" and "Add to my notes" buttons). It never shows prices, and it tells the client Dan (Keen Falcon) will follow up.
+
+It works with no setup: without a key it uses built-in step-by-step tips. To turn on live answers (from the Anthropic API, via `netlify/functions/guide.js`):
+
+1. Netlify → this site → **Project configuration** → **Environment variables** → **Add a variable**.
+2. Key `ANTHROPIC_API_KEY`, value: the same key used on the Smith Orthotics site.
+3. Optional: `GUIDE_MODEL` (defaults to `claude-haiku-5-5`). Optional: `GUIDE_TEMPERATURE` (left off by default, because `claude-haiku-5-5` rejects it).
+4. **Deploys** → **Trigger deploy** → **Deploy site**, so the function picks up the key.
+
+Cost: roughly a few cents per client conversation. Each IP is limited to 20 messages per 10 minutes.
+
+Also on each section: quick reaction chips ("Love it", "The photos", "Too busy"…) and a "Talk" mic button on browsers with built-in speech recognition. Reactions show on the review screen and arrive in the `reactions` form field; `helper_used` says whether the client used the helper.
 
 ## Good to know
 

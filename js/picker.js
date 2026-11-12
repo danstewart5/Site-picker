@@ -12,7 +12,22 @@
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
 
   var C, slug, designs, palettes, fonts, sections, steps, storeKey;
-  var S = { picks: {}, palette: null, font: null, edits: {}, requests: {}, addons: [], form: {}, view: "design", step: 0, size: "desktop", sent: false };
+  var S = { picks: {}, palette: null, font: null, edits: {}, requests: {}, reactions: {}, addons: [], form: {}, view: "design", step: 0, size: "desktop", sent: false, helperUsed: false };
+  var SPEECH = window.KF_SPEECH || { supported: false, ios: false, button: function () { return ""; } };
+
+  /* Quick reactions under each section's options. "feel" ones are one-of-three; the rest can be combined. */
+  var REACTIONS = [
+    { id: "love", label: "Love it", emoji: "\u2764\uFE0F", feel: true },
+    { id: "good", label: "Good", emoji: "\uD83D\uDC4D", feel: true },
+    { id: "no", label: "Not for me", emoji: "\uD83D\uDC4E", feel: true },
+    { id: "photos", label: "The photos" },
+    { id: "layout", label: "The layout" },
+    { id: "wording", label: "The wording" },
+    { id: "simple", label: "Clean & simple" },
+    { id: "busy", label: "Too busy" },
+    { id: "us", label: "Feels like us" }
+  ];
+  function reactionLabel(id) { var r = REACTIONS.filter(function (x) { return x.id === id; })[0]; return r ? r.label : id; }
   var editing = false, suppressScrollSync = 0, saveTimer = null;
 
   /* ---------- storage (never throws) ---------- */
@@ -32,11 +47,12 @@
       if (!raw) return;
       var d = JSON.parse(raw);
       if (!d || typeof d !== "object") return;
-      ["picks", "edits", "requests", "form"].forEach(function (k) { if (d[k] && typeof d[k] === "object") S[k] = d[k]; });
+      ["picks", "edits", "requests", "reactions", "form"].forEach(function (k) { if (d[k] && typeof d[k] === "object") S[k] = d[k]; });
       if (Array.isArray(d.addons)) S.addons = d.addons.filter(function (x) { return typeof x === "string"; });
       ["palette", "font", "view", "size"].forEach(function (k) { if (typeof d[k] === "string") S[k] = d[k]; });
       if (typeof d.step === "number") S.step = d.step;
       S.sent = !!d.sent;
+      S.helperUsed = !!d.helperUsed;
     } catch (e) { /* bad data: start fresh */ }
   }
 
@@ -140,6 +156,8 @@
 
     $("#k-loading").hidden = true;
     show(S.sent && S.view === "done" ? "done" : (["design", "addons", "review"].indexOf(S.view) > -1 ? S.view : "design"), true);
+    API.ready = true;
+    emit("kf:ready");
   }
 
   /* ---------- fonts ---------- */
@@ -215,7 +233,8 @@
     var sec = n.closest("section[data-sec]");
     if (!sec) return;
     var id = sec.getAttribute("data-sec"), letter = shown(id), key = n.getAttribute("data-edit");
-    var text = n.innerText.replace(/\s+/g, " ").trim(), orig = n.getAttribute("data-orig") || "";
+    /* textContent when it's plain text: innerText would bake in CSS uppercase from some fonts. */
+    var text = (n.children.length ? n.innerText : n.textContent).replace(/\s+/g, " ").trim(), orig = n.getAttribute("data-orig") || "";
     S.edits[id] = S.edits[id] || {};
     S.edits[id][letter] = S.edits[id][letter] || {};
     if (text === orig.replace(/\s+/g, " ").trim()) { delete S.edits[id][letter][key]; n.classList.remove("edited"); }
@@ -250,15 +269,52 @@
       return '<div class="k-row" id="row-' + st.id + '" data-step="' + i + '">' +
         '<div class="k-row-head"><h2>' + (i + 1) + ". " + esc(st.label) + "<small>" + esc(st.hint || "") + '</small></h2><span class="k-status" id="status-' + st.id + '"></span></div>' +
         '<div class="k-opts" role="group" aria-label="' + esc(st.label) + '" style="--n:' + Math.min(n, 4) + '">' + opts + "</div>" +
+        (st.type === "section" ? reactRow(st) : "") +
         '<div class="k-edits-note" id="edits-' + st.id + '" hidden></div>' +
         (st.type === "section" ?
-          '<details class="k-req"' + (S.requests[st.id] ? " open" : "") + '><summary>✎ Change the wording or ask for something different</summary>' +
+          '<details class="k-req"' + (S.requests[st.id] ? " open" : "") + '><summary>✎ Change the wording or ask for something different <span class="k-req-flag" id="reqflag-' + st.id + '"></span></summary>' +
           '<p class="k-req-tip">Tap <strong>Edit text</strong> to type your own words right on the page. For anything you can\'t change there (a different photo, another service, a new section), write it here.</p>' +
-          '<textarea class="k-req-box" data-req="' + st.id + '" rows="3" placeholder="e.g. Use a photo of our shop here, add a service, say it in my own words…">' + esc(S.requests[st.id] || "") + '</textarea></details>' : "") +
+          '<textarea class="k-req-box" data-req="' + st.id + '" rows="3" placeholder="e.g. Use a photo of our shop here, add a service, say it in my own words…' + (SPEECH.ios ? " (Or tap the mic on your keyboard to talk.)" : "") + '">' + esc(S.requests[st.id] || "") + '</textarea>' +
+          (SPEECH.supported ? '<div class="k-req-mic">' + SPEECH.button('data-mic-for="' + st.id + '"', "Talk instead of typing: " + esc(st.label)) + "</div>" : "") + "</details>" : "") +
         "</div>";
     }).join("");
     $("#k-rows").innerHTML = html;
     updatePanel();
+  }
+
+  function reactRow(st) {
+    return '<div class="k-react" id="react-' + st.id + '" role="group" aria-label="What do you think of this design?">' +
+      '<span class="k-react-lbl" aria-hidden="true"></span>' +
+      REACTIONS.map(function (r) {
+        return '<button type="button" class="k-chip' + (r.feel ? " feel" : "") + '" data-react="' + r.id + '" data-rsec="' + st.id + '" aria-pressed="false">' +
+          (r.emoji ? '<span aria-hidden="true">' + r.emoji + "</span> " : "") + esc(r.label) + "</button>";
+      }).join("") + "</div>";
+  }
+  function reactionsFor(id, letter) { return (S.reactions[id] && Array.isArray(S.reactions[id][letter])) ? S.reactions[id][letter] : []; }
+  function toggleReaction(id, letter, tag, forceOn) {
+    if (!REACTIONS.some(function (r) { return r.id === tag; }) || !sections.some(function (s) { return s.id === id; })) return false;
+    if (LETTERS.indexOf(letter) < 0) letter = shown(id);
+    var list = reactionsFor(id, letter).slice(), i = list.indexOf(tag), isFeel = REACTIONS.filter(function (r) { return r.id === tag; })[0].feel;
+    if (i > -1 && !forceOn) list.splice(i, 1);
+    else if (i < 0) {
+      if (isFeel) list = list.filter(function (x) { return !REACTIONS.some(function (r) { return r.feel && r.id === x; }); });
+      list.push(tag);
+    }
+    S.reactions[id] = S.reactions[id] || {};
+    if (list.length) S.reactions[id][letter] = list; else delete S.reactions[id][letter];
+    if (!Object.keys(S.reactions[id]).length) delete S.reactions[id];
+    updatePanel(); save();
+    return true;
+  }
+  function reactionList() {
+    var out = [];
+    sections.forEach(function (s) {
+      LETTERS.forEach(function (l) {
+        var r = reactionsFor(s.id, l).slice().sort(function (x, y) { return REACTIONS.map(function (q) { return q.id; }).indexOf(x) - REACTIONS.map(function (q) { return q.id; }).indexOf(y); });
+        if (r.length) out.push({ section: s.label, id: s.id, option: l, tags: r, text: r.map(reactionLabel).join(", ") });
+      });
+    });
+    return out;
   }
 
   function countEdits(id) { return Object.keys(editsFor(id, shown(id))).length; }
@@ -278,6 +334,14 @@
       st.classList.toggle("done", !!S.picks[s.id]);
       note.hidden = !n;
       note.textContent = n ? "✎ " + n + " text change" + (n > 1 ? "s" : "") : "";
+      var flag = $("#reqflag-" + s.id);
+      if (flag) flag.textContent = (S.requests[s.id] || "").trim() ? "✓ Note saved" : "";
+      var letter = shown(s.id), mine = reactionsFor(s.id, letter), row = $("#react-" + s.id);
+      if (row) {
+        row.setAttribute("aria-label", "What do you think of option " + letter + "?");
+        $(".k-react-lbl", row).textContent = letter + ":";
+        $$(".k-chip", row).forEach(function (c) { c.setAttribute("aria-pressed", mine.indexOf(c.getAttribute("data-react")) > -1 ? "true" : "false"); });
+      }
     });
     $("#status-palette").textContent = palette().name;
     $("#status-font").textContent = font().name;
@@ -288,6 +352,7 @@
     $("#k-step-count").textContent = (S.step + 1) + " / " + steps.length;
     $("#k-prev").disabled = S.step === 0;
     $("#k-next").setAttribute("aria-label", S.step === steps.length - 1 ? "Next: choose extras" : "Next section");
+    emit("kf:change");
   }
 
   function setStep(i, scroll) {
@@ -426,6 +491,9 @@
       '<section class="k-summary"><h2>Wording changes <button type="button" class="k-btn small" data-go="design">Change</button></h2>' +
         (tc.length ? "<ul>" + tc.map(function (t) { return "<li><strong>" + esc(t.section) + ":</strong> “" + esc(t.text) + "”</li>"; }).join("") + "</ul>"
                    : '<p class="none">No changes. Use “Edit text” on the design step to change any wording.</p>') + "</section>" +
+      '<section class="k-summary"><h2>What you liked <button type="button" class="k-btn small" data-go="design">Change</button></h2>' +
+        (reactionList().length ? "<ul>" + reactionList().map(function (r) { return "<li><strong>" + esc(r.section) + " (Option " + esc(r.option) + "):</strong> " + esc(r.text) + "</li>"; }).join("") + "</ul>"
+                   : '<p class="none">Nothing yet. Tap the little reactions under each section (like “Love it” or “The photos”) to tell us what you like.</p>') + "</section>" +
       '<section class="k-summary"><h2>Other changes you asked for <button type="button" class="k-btn small" data-go="design">Change</button></h2>' +
         (requestList().length ? "<ul>" + requestList().map(function (r) { return "<li><strong>" + esc(r.section) + ":</strong> " + esc(r.text) + "</li>"; }).join("") + "</ul>"
                    : '<p class="none">None. Each section has a box where you can describe anything else you\'d like changed.</p>') + "</section>" +
@@ -456,10 +524,12 @@
       sections: sectionsText(),
       style: "Colours: " + palette().name + "\nFonts: " + font().name,
       text_changes: tc.length ? tc.map(function (t) { return "[" + t.section + " / " + t.key + "]\nWas: " + t.was + "\nNow: " + t.text; }).join("\n\n") : "None",
+      reactions: reactionList().length ? reactionList().map(function (r) { return "[" + r.section + " / Option " + r.option + "] " + r.text; }).join("\n") : "None",
+      helper_used: S.helperUsed ? "yes" : "no",
       change_requests: requestList().length ? requestList().map(function (r) { return "[" + r.section + "] " + r.text; }).join("\n\n") : "None",
       addons: S.addons.length ? S.addons.map(function (id) { return addonName(id) + (priceText(id) ? " (" + priceText(id) + ")" : ""); }).join("\n") + "" : "None",
       price_estimate: totalText() ? totalText() + " | " + dueTodayText() : "",
-      picks_json: JSON.stringify({ client: slug, business: C.businessName, picks: picks, palette: S.palette, font: S.font, edits: edits, requests: S.requests, addons: S.addons, page: location.href, sentAt: new Date().toISOString() })
+      picks_json: JSON.stringify({ client: slug, business: C.businessName, picks: picks, palette: S.palette, font: S.font, edits: edits, requests: S.requests, reactions: S.reactions, helperUsed: !!S.helperUsed, addons: S.addons, page: location.href, sentAt: new Date().toISOString() })
     };
   }
 
@@ -488,7 +558,7 @@
         show("done");
       })
       .catch(function () {
-        var body = "Picks for " + C.businessName + "\n\n" + data.sections + "\n\n" + data.style + "\n\nExtras:\n" + data.addons + "\n\nText changes:\n" + data.text_changes + "\n\nOther changes:\n" + data.change_requests +
+        var body = "Picks for " + C.businessName + "\n\n" + data.sections + "\n\n" + data.style + "\n\nExtras:\n" + data.addons + "\n\nText changes:\n" + data.text_changes + "\n\nOther changes:\n" + data.change_requests + "\n\nWhat I liked:\n" + data.reactions +
           "\n\nName: " + data.name + "\nEmail: " + data.email + "\nPhone: " + data.phone + "\nNotes: " + data.notes;
         var mail = SET.email ? ' or <a href="mailto:' + esc(SET.email) + "?subject=" + encodeURIComponent("Website picks - " + C.businessName) + "&body=" + encodeURIComponent(body.slice(0, 1800)) + '">email your picks instead</a>' : "";
         box.innerHTML = "Sorry, that didn't send. Please check your connection and try again" + mail + ".";
@@ -506,6 +576,7 @@
       if (v === view || (view === "done" && v === "review")) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
     });
     if (view !== "design" && editing) setEditing(false);
+    document.body.setAttribute("data-view", view);
     if (view === "review") renderSummary();
     if (view === "addons") updateAddonCount();
     measurePanel();
@@ -516,6 +587,7 @@
     }
     if (view === "design" && initial && steps[S.step].type === "section" && S.step > 0) setTimeout(function () { scrollToSection(steps[S.step].id); }, 50);
     save();
+    emit("kf:change");
   }
 
   /* ---------- events ---------- */
@@ -527,12 +599,18 @@
         if (sec) { var id = sec.getAttribute("data-sec"); steps.forEach(function (s, i) { if (s.id === id && i !== S.step) setStep(i, false); }); }
         return;
       }
-      if (t.hasAttribute("data-sec")) {
+      if (t.hasAttribute("data-react")) {
+        toggleReaction(t.getAttribute("data-rsec"), shown(t.getAttribute("data-rsec")), t.getAttribute("data-react"));
+      } else if (t.hasAttribute("data-mic-for")) {
+        var mid = t.getAttribute("data-mic-for");
+        SPEECH.toggle(t, function (txt) { addNote(mid, txt, true); });
+      } else if (t.hasAttribute("data-sec")) {
         var sid = t.getAttribute("data-sec");
         S.picks[sid] = t.getAttribute("data-v");
         renderSection(sid);
         steps.forEach(function (s, i) { if (s.id === sid) S.step = i; });
         updatePanel(); scrollToSection(sid); save();
+        emit("kf:pick", { section: sid, option: S.picks[sid] });
       } else if (t.hasAttribute("data-palette")) {
         S.palette = t.getAttribute("data-palette");
         steps.forEach(function (s, i) { if (s.id === "palette") S.step = i; });
@@ -566,7 +644,7 @@
         setEditing(false);
       } else if (t.id === "k-reset") {
         if (window.confirm("Clear all your picks and start again?")) {
-          S = { picks: {}, palette: C.defaultPalette || palettes[0].id, font: C.defaultFont || fonts[0].id, edits: {}, requests: {}, addons: [], form: S.form, view: "design", step: 0, size: S.size, sent: false };
+          S = { picks: {}, palette: C.defaultPalette || palettes[0].id, font: C.defaultFont || fonts[0].id, edits: {}, requests: {}, reactions: {}, addons: [], form: S.form, view: "design", step: 0, size: S.size, sent: false, helperUsed: S.helperUsed };
           renderSite(); applyStyle(); buildPanel(); buildAddons(); updatePanel(); show("design");
         }
       }
@@ -577,6 +655,7 @@
       var t = e.target; if (!t.matches || !t.matches(".k-req-box")) return;
       var id = t.getAttribute("data-req"), v = t.value;
       if (v.trim()) S.requests[id] = v; else delete S.requests[id];
+      var fl = $("#reqflag-" + id); if (fl) fl.textContent = v.trim() ? "✓ Note saved" : "";
       save();
     });
     site.addEventListener("input", function (e) { var n = e.target.closest && e.target.closest("[data-edit]"); if (n) recordEdit(n); });
@@ -622,6 +701,96 @@
     window.addEventListener("resize", measurePanel);
     if (MOBILE.addEventListener) MOBILE.addEventListener("change", measurePanel);
   }
+
+  /* ---------- small API for the design helper ---------- */
+  function emit(name, detail) {
+    try { document.dispatchEvent(new CustomEvent(name, { detail: detail || {} })); } catch (e) { /* old browser: ignore */ }
+  }
+  function stepIndex(id) { var n = -1; steps.forEach(function (s, i) { if (s.id === id) n = i; }); return n; }
+  function sectionText(id) {
+    var el = $("#sec-" + id), out = {}, n = 0;
+    if (!el) return out;
+    $$("[data-edit]", el).forEach(function (node) {
+      var k = node.getAttribute("data-edit");
+      if (out.hasOwnProperty(k) || n >= 30) return;
+      out[k] = node.textContent.replace(/\s+/g, " ").trim().slice(0, 300); n++;
+    });
+    return out;
+  }
+  /* Append text to a section's change-request box (opens it). */
+  function addNote(id, text, focus) {
+    var box = $('.k-req-box[data-req="' + id + '"]');
+    text = String(text || "").trim();
+    if (!box || !text) return false;
+    var cur = (S.requests[id] || "").replace(/\s+$/, "");
+    S.requests[id] = cur ? cur + (/[.!?]$/.test(cur) ? " " : ". ") + text : text;
+    box.value = S.requests[id];
+    if (focus) { var d = box.closest("details"); if (d) d.open = true; box.focus(); }
+    updatePanel();
+    save();
+    return true;
+  }
+  /* Put new wording into an editable field, through the same path as typing it. */
+  function applyText(id, key, text) {
+    var sec = $("#sec-" + id);
+    text = String(text || "").replace(/\s+/g, " ").trim();
+    if (!sec || !text || !/^[\w.\-]{1,60}$/.test(key)) return false;
+    var n = $('[data-edit="' + key + '"]', sec);
+    if (!n) return false;
+    n.textContent = text;
+    recordEdit(n);
+    return true;
+  }
+  function gotoStep(id) {
+    if (id === "addons" || id === "review") { show(id); return true; }
+    var i = stepIndex(id);
+    if (i < 0) return false;
+    if (S.view !== "design") show("design");
+    setStep(i, true);
+    return true;
+  }
+  var API = {
+    ready: false,
+    reactions: REACTIONS,
+    state: function () {
+      var st = steps[S.step] || {};
+      return { view: S.view, step: { type: st.type, id: st.id, label: st.label, hint: st.hint, index: S.step, total: steps.length },
+        shown: st.type === "section" ? shown(st.id) : null, picked: st.type === "section" ? (S.picks[st.id] || null) : null,
+        designName: st.type === "section" ? (design(shown(st.id)).name || "") : "" };
+    },
+    slug: function () { return slug; },
+    context: function () {
+      var st = steps[S.step] || {}, cur = S.view === "design" && st.type === "section" ? st.id : null;
+      var rx = {};
+      reactionList().forEach(function (r) { rx[r.id] = rx[r.id] || {}; rx[r.id][r.option] = r.tags.map(reactionLabel); });
+      return {
+        business: C.businessName, industry: C.industry || "",
+        view: S.view, step: { type: st.type || "", id: st.id || "", label: st.label || "", index: S.step + 1, total: steps.length },
+        sections: sections.map(function (s) { return { id: s.id, label: s.label, picked: S.picks[s.id] || "", showing: shown(s.id), edits: countEdits(s.id), note: (S.requests[s.id] || "").slice(0, 200) }; }),
+        designs: designs.map(function (d) { return { id: d.id, name: d.name || "" }; }),
+        palette: { current: palette().name, options: palettes.map(function (p) { return p.name; }) },
+        font: { current: font().name, options: fonts.map(function (f) { return f.name; }) },
+        extras: S.addons.map(addonName),
+        reactions: rx,
+        current: cur ? { id: cur, label: labelOf(cur), option: shown(cur), text: sectionText(cur) } : null
+      };
+    },
+    sectionText: sectionText,
+    sectionLabel: labelOf,
+    hasSection: function (id) { return sections.some(function (s) { return s.id === id; }); },
+    goto: gotoStep,
+    next: function () {
+      if (S.view === "design") { if (S.step >= steps.length - 1) show("addons"); else setStep(S.step + 1, true); }
+      else if (S.view === "addons") show("review");
+    },
+    applyText: applyText,
+    addNote: function (id, text) { return addNote(id, text, false); },
+    react: function (id, letter, tag) { return toggleReaction(id, letter, tag, true); },
+    reactionsFor: reactionsFor,
+    markHelperUsed: function () { if (!S.helperUsed) { S.helperUsed = true; save(); } },
+    settings: SET
+  };
+  window.KF_PICKER = API;
 
   boot();
 })();
