@@ -104,3 +104,43 @@ window.KF_ADDONS = [
     name: "Monthly care plan",
     desc: "Updates, backups and small edits handled for you every month." }
 ];
+
+/*
+  Prices for each extra, in CAD before GST. Shown to the client with a running estimate.
+    setup     one-time price
+    monthly   ongoing price per month (0 or leave out if none)
+    unit      optional note, e.g. "per language"
+  Set KF_SHOW_PRICES = false to hide all prices.
+  Benchmarks (Nov 2026, Canadian small-business web design): booking $300-1,500,
+  chat assistant $500-2,000 setup + ~$150/mo, online store $1,000-5,000,
+  Google profile setup $300+, care plans $75-300/mo. These sit at the
+  competitive end of those ranges.
+*/
+window.KF_SHOW_PRICES = true;
+window.KF_PRICE_NOTE = "Estimates in CAD, before GST. Your final price is confirmed in your quote.";
+window.KF_ADDON_PRICES = {
+  "lead-form":          { setup: 150 },
+  "click-to-call":      { setup: 50 },
+  "text-back":          { setup: 200, monthly: 25 },
+  "chat-assistant":     { setup: 750, monthly: 75 },
+  "quote-calculator":   { setup: 600 },
+  "referral-form":      { setup: 350 },
+  "local-seo":          { setup: 350 },
+  "service-map":        { setup: 75 },
+  "newsletter":         { setup: 150 },
+  "hero-video":         { setup: 250 },
+  "before-after":       { setup: 200 },
+  "google-reviews":     { setup: 150, monthly: 10 },
+  "video-testimonials": { setup: 300 },
+  "virtual-tour":       { setup: 400 },
+  "social-feed":        { setup: 100 },
+  "blog":               { setup: 350 },
+  "faq":                { setup: 100 },
+  "booking":            { setup: 400, monthly: 30 },
+  "online-store":       { setup: 1500, monthly: 40 },
+  "payments":           { setup: 300 },
+  "analytics":          { setup: 200, monthly: 15 },
+  "accessibility":      { setup: 150 },
+  "multi-language":     { setup: 500, unit: "per language" },
+  "care-plan":          { setup: 0, monthly: 99 }
+};

@@ -178,3 +178,7 @@ body.typing .k-panel { transform: translateY(110%); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 @media (max-width: 519px) { .k-panel:not(.expanded) .k-row-head h2 small { display: none; } }
 @media (max-width: 419px) { .k-panel-nav .k-step-count { display: none; } .k-panel-nav .k-expand { flex: 1; } }
+.k-addon-price { display: inline-block; margin-top: 6px; font-weight: 700; font-size: .92rem; color: var(--k-brand); }
+.k-addon-price.inline { margin: 0 0 0 6px; font-size: .88rem; }
+.k-total { margin: 12px 0 0; padding: 12px; border-radius: 10px; background: rgba(0,0,0,.04); }
+.k-note { font-size: .85rem; color: var(--k-ink-2); }
