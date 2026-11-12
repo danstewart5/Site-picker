@@ -116,7 +116,7 @@ window.KF_ADDONS = [
   Google profile setup $300+, care plans $75-300/mo. These sit at the
   competitive end of those ranges.
 */
-window.KF_SHOW_PRICES = true;
+window.KF_SHOW_PRICES = false;
 window.KF_PRICE_NOTE = "Estimates in CAD, before GST. Your final price is confirmed in your quote.";
 /* Base package every client gets: website build + monthly care (hosting, security, small updates). */
 window.KF_BASE = { setup: 99, monthly: 29, name: "Your website + monthly care",
