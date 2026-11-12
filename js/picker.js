@@ -301,6 +301,7 @@
       var n = st.type === "section" ? designs.length : (st.type === "palette" ? palettes.length : fonts.length);
       return '<div class="k-row" id="row-' + st.id + '" data-step="' + i + '">' +
         '<div class="k-row-head"><h2>' + (i + 1) + ". " + esc(st.label) + "<small>" + esc(st.hint || "") + '</small></h2><span class="k-status" id="status-' + st.id + '"></span></div>' +
+        '<p class="k-how">' + esc(howTo(st)) + "</p>" +
         '<div class="k-opts" role="group" aria-label="' + esc(st.label) + '" style="--n:' + Math.min(n, 4) + '">' + opts + "</div>" +
         (st.type === "section" ? reactRow(st) : "") +
         '<div class="k-edits-note" id="edits-' + st.id + '" hidden></div>' +
@@ -315,6 +316,13 @@
     updatePanel();
   }
 
+  /* One plain line of directions per step. */
+  function howTo(st) {
+    if (st.type === "palette") return "Pick the colours you like best.";
+    if (st.type === "font") return "Pick a lettering style.";
+    var ids = designs.map(function (d) { return d.id; });
+    return "Pick your favourite version of this section. Tap " + (ids.length > 1 ? ids.slice(0, -1).join(", ") + " or " + ids[ids.length - 1] : ids[0]) + ".";
+  }
   function reactRow(st) {
     return '<div class="k-react" id="react-' + st.id + '" role="group" aria-label="What do you think of this design?">' +
       '<span class="k-react-lbl" aria-hidden="true"></span>' +

@@ -232,7 +232,7 @@
     root.innerHTML =
       '<button type="button" class="kg-bubble" id="kg-bubble" aria-expanded="false" aria-controls="kg-panel">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M9 10h.01M12 10h.01M15 10h.01"/></svg>' +
-        "<span>Need help?</span></button>" +
+        "<span>Design helper</span></button>" +
       '<section class="kg-panel" id="kg-panel" role="dialog" aria-modal="false" aria-labelledby="kg-title" hidden>' +
         '<header class="kg-head"><div><h2 id="kg-title">Design helper</h2><p>Here to help you pick</p></div>' +
           '<button type="button" class="kg-x" id="kg-close" aria-label="Close helper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>' +
@@ -315,8 +315,7 @@
     if (!G.greeted) {
       G.greeted = true;
       G.msgs.push({ r: "bot", t: "Hi! I'm your design helper. I can walk you through picking your new website, one step at a time.", q: [CHIPS.walk, CHIPS.what, CHIPS.wording, CHIPS.done], a: [] });
-      save();
-      setTimeout(function () { if (P.state().view !== "done") open(false); }, 900);
+      save(); /* the helper starts closed: only the small button shows until the client taps it */
     }
     render();
   }
