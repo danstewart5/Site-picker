@@ -29,6 +29,8 @@
   ];
   function reactionLabel(id) { var r = REACTIONS.filter(function (x) { return x.id === id; })[0]; return r ? r.label : id; }
   var editing = false, suppressScrollSync = 0, saveTimer = null, hintOn = false, sheetOpen = false, barHtml = "";
+  var viewing = {}; /* option being previewed per section (bar pills); picking is a separate tap on "✓ Pick" */
+  var noteTimer = null, advanceTimer = null, pulseTimer = null;
 
   /* ---------- storage (never throws) ---------- */
   function flush() {
@@ -127,7 +129,7 @@
     if (typeof l === "string" && /^[a-z][a-z0-9-]{0,30}$/.test(l) && window.KF_RENDER[id] && typeof window.KF_RENDER[id][l] === "function") return l;
     return letter;
   }
-  function shown(id) { return S.picks[id] || designs[0].id; }
+  function shown(id) { return viewing[id] || S.picks[id] || designs[0].id; }
   function palette() { return palettes.filter(function (p) { return p.id === S.palette; })[0] || palettes[0]; }
   function font() { return fonts.filter(function (f) { return f.id === S.font; })[0] || fonts[0]; }
   function ctx() {
@@ -173,17 +175,16 @@
     bind();
     setSize(S.size);
 
-    /* "Starting point" note: a small toast on the first visit only, gone for good once closed. */
-    var note = $("#k-start-note"), seen = false;
-    try { seen = localStorage.getItem("kf-start-note-hidden") === "1"; } catch (e) {}
-    note.hidden = seen;
-    $("#k-start-x").addEventListener("click", function () { note.hidden = true; try { localStorage.setItem("kf-start-note-hidden", "1"); } catch (e) {} });
-    /* First time only: a tiny hint on the bar until the first tap on an option. */
-    try { hintOn = localStorage.getItem("kf-bar-hint-seen") !== "1"; } catch (e) { hintOn = false; }
-    updatePanel();
+    /* "How this works" card: letters for this client, shown once on the first visit. */
+    var ids = designs.map(function (d) { return d.id; });
+    $("#k-w-letters").textContent = ids.slice(0, -1).join(", ") + " or " + ids[ids.length - 1];
+    $("#k-wi-pills").innerHTML = ids.map(function (l) { return "<i>" + l + "</i>"; }).join("");
+    var seen = false;
+    try { seen = localStorage.getItem("kf-welcome-seen") === "1"; } catch (e) {}
 
     $("#k-loading").hidden = true;
     show(S.sent && S.view === "done" ? "done" : (["design", "addons", "review"].indexOf(S.view) > -1 ? S.view : "design"), true);
+    if (!seen && S.view === "design") openWelcome();
     API.ready = true;
     emit("kf:ready");
   }
@@ -239,7 +240,7 @@
     el.className = "s s-" + id + " v-" + layout;
     el.setAttribute("aria-label", labelOf(id) + ", " + optName(letter));
     el.innerHTML = (fn ? fn(contentFor(id, letter), ctx()) : "") +
-      '<span class="k-sec-tag" aria-hidden="true">' + esc(labelOf(id)) + " · " + esc(shortName(letter)) + (S.picks[id] ? " ✓" : "") + "</span>";
+      '<span class="k-sec-tag" aria-hidden="true">' + esc(labelOf(id)) + " · " + esc(shortName(letter)) + (S.picks[id] === letter ? " ✓" : "") + "</span>";
     $$("[data-edit]", el).forEach(function (n) { n.setAttribute("data-orig", n.textContent); });
     applyEdits(el, id, letter);
     if (editing) setEditable(el, true);
@@ -315,7 +316,7 @@
         (st.type === "section" ? reactRow(st) : "") +
         '<div class="k-edits-note" id="edits-' + st.id + '" hidden></div>' +
         (st.type === "section" ?
-          '<details class="k-req"' + (S.requests[st.id] ? " open" : "") + '><summary>✎ Change the wording or ask for something different <span class="k-req-flag" id="reqflag-' + st.id + '"></span></summary>' +
+          '<details class="k-req"' + (S.requests[st.id] ? " open" : "") + '><summary>✎ Change wording or ask for something <span class="k-req-flag" id="reqflag-' + st.id + '"></span></summary>' +
           '<p class="k-req-tip">Tap <strong>Edit text</strong> to type your own words right on the page. For anything you can\'t change there (a different photo, another service, a new section), write it here.</p>' +
           '<textarea class="k-req-box" data-req="' + st.id + '" rows="3" placeholder="e.g. Use a photo of our shop here, add a service, say it in my own words…' + (SPEECH.ios ? " (Or tap the mic on your keyboard to talk.)" : "") + '">' + esc(S.requests[st.id] || "") + '</textarea>' +
           (SPEECH.supported ? '<div class="k-req-mic">' + SPEECH.button('data-mic-for="' + st.id + '"', "Talk instead of typing: " + esc(st.label)) + "</div>" : "") + "</details>" : "") +
@@ -327,12 +328,10 @@
 
   /* One plain line of directions per step. */
   function howTo(st) {
-    if (st.type === "palette") return "Pick the colours you like best.";
-    if (st.type === "font") return "Pick a lettering style.";
+    if (st.type === "palette") return "Tap the colours you like.";
+    if (st.type === "font") return "Tap the lettering you like.";
     var ids = designs.map(function (d) { return d.id; });
-    var o = origLetter();
-    return "Pick your favourite version of this section. Tap " + (ids.length > 1 ? ids.slice(0, -1).join(", ") + " or " + ids[ids.length - 1] : ids[0]) + "." +
-      (o ? " " + o + " is your current site (Original)." : "");
+    return "Tap the one you like best.";
   }
   function reactRow(st) {
     return '<div class="k-react" id="react-' + st.id + '" role="group" aria-label="What do you think of this design?">' +
@@ -414,15 +413,19 @@
     if (st.type === "section") {
       var secIdx = 0; sections.forEach(function (s, i) { if (s.id === st.id) secIdx = i; });
       var ids = designs.map(function (d) { return d.id; });
-      sub = (secIdx + 1) + " of " + sections.length + (S.picks[st.id] ? " \u00b7 picked \u2713" : "");
-      $("#k-bar-hint").textContent = "Tap " + ids[0] + "\u2013" + ids[ids.length - 1] + " to swap this section";
-      name = st.label;
+      sub = st.label;
+      var cur = shown(st.id), done = S.picks[st.id] === cur;
+      name = done ? "\u2713 Picked" : "";
+      $("#k-bar-pick").hidden = done;
+      $("#k-bar-pick").setAttribute("aria-label", "Pick " + (isOrig(cur) ? "your current site" : "option " + cur) + " for " + st.label);
+      $("#k-bar-hint").textContent = "Tap " + ids[0] + "\u2013" + ids[ids.length - 1] + " here";
       opts = designs.map(function (d) {
-        var o = isOrig(d.id), on = S.picks[st.id] === d.id, showing = !S.picks[st.id] && shown(st.id) === d.id;
-        return '<button type="button" class="k-pill' + (o ? " orig" : "") + (showing ? " showing" : "") + '" data-sec="' + st.id + '" data-v="' + d.id + '" aria-pressed="' + on + '" aria-label="' +
-          esc(st.label) + ": " + esc(optName(d.id)) + '">' + d.id + (o ? '<span class="t"> \u00b7 ' + esc(d.badge || "Original") + "</span>" : "") + "</button>";
+        var o = isOrig(d.id), picked = S.picks[st.id] === d.id, on = cur === d.id;
+        return '<button type="button" class="k-pill' + (o ? " orig" : "") + (picked ? " picked" : "") + '" data-sec="' + st.id + '" data-v="' + d.id + '" aria-pressed="' + on + '" aria-label="' +
+          esc(st.label) + ": see " + esc(optName(d.id)) + (picked ? ", picked" : "") + '">' + d.id + (o ? '<span class="t"> \u00b7 ' + esc(d.badge || "Original") + "</span>" : "") + "</button>";
       }).join("");
     } else if (st.type === "palette") {
+      $("#k-bar-pick").hidden = true;
       sub = "Colours"; name = palette().name;
       opts = palettes.map(function (p) {
         return '<button type="button" class="k-pill sw" data-palette="' + esc(p.id) + '" aria-pressed="' + (p.id === S.palette) + '" aria-label="Colours: ' + esc(p.name) + '">' +
@@ -430,7 +433,8 @@
       }).join("");
       next = '<button type="button" class="k-pill go" id="k-bar-next" aria-label="Next: fonts">\u203a</button>';
     } else {
-      sub = "Fonts"; name = font().name;
+      $("#k-bar-pick").hidden = true;
+      sub = "Lettering"; name = font().name;
       opts = fonts.map(function (f) {
         return '<button type="button" class="k-pill aa" data-font="' + esc(f.id) + '" aria-pressed="' + (f.id === S.font) + '" aria-label="Fonts: ' + esc(f.name) + '">' +
           '<span aria-hidden="true" style="font-family:' + esc(f.head) + ";font-weight:" + (f.weight || 700) + '">Aa</span></button>';
@@ -441,6 +445,7 @@
     $("#k-bar-hint").hidden = !(hintOn && st.type === "section");
     document.body.classList.toggle("k-hint", hintOn && st.type === "section");
     $("#k-bar-name").textContent = name;
+    $("#k-bar-name").classList.toggle("ok", st.type === "section");
     $("#k-bar").classList.toggle("style", st.type !== "section");
     $("#k-bar").setAttribute("aria-label", "Pick: " + (st.type === "section" ? st.label : sub));
     var html = opts + next;
@@ -453,10 +458,70 @@
     var ob = $("#k-orig-banner"), oon = S.view === "design" && !editing && st.type === "section" && isOrig(shown(st.id));
     ob.hidden = !oon;
   }
-  function hideHint() {
-    if (!hintOn) return;
-    hintOn = false;
-    try { localStorage.setItem("kf-bar-hint-seen", "1"); } catch (e) {}
+  function hideHint() { if (hintOn) { hintOn = false; renderBar(); } }
+  /* Brief pulse on the bar, with a "Tap A–D here" label, right after the welcome card closes. */
+  function pulseBar() {
+    if (!MOBILE.matches || steps[S.step].type !== "section") return;
+    var bar = $("#k-bar");
+    hintOn = true; renderBar();
+    bar.classList.remove("pulse"); void bar.offsetWidth; bar.classList.add("pulse");
+    clearTimeout(pulseTimer);
+    pulseTimer = setTimeout(function () { bar.classList.remove("pulse"); hideHint(); }, 4500);
+  }
+  function note(text) {
+    var n = $("#k-note");
+    n.textContent = text; n.hidden = false;
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(function () { n.hidden = true; }, 2600);
+  }
+  function openWelcome() {
+    setSheet(false);
+    /* On a computer the letters are in the side panel and tapping one picks it. */
+    var desk = !MOBILE.matches;
+    $("#k-w-where").textContent = desk ? "on the left" : "at the bottom";
+    $("#k-wi-pick").innerHTML = desk ? "&#10003;" : "&#10003; Pick";
+    $("#k-w-pick").innerHTML = desk ? "The one you tap gets a <b>&#10003;</b>. Keep scrolling and do the same." : "Like it? Tap <b>&#10003; Pick</b> and keep scrolling.";
+    $("#k-welcome").hidden = false;
+    document.body.classList.add("k-welcome-open");
+    setTimeout(function () { $("#k-welcome-go").focus({ preventScroll: true }); }, 30);
+  }
+  function closeWelcome() {
+    if ($("#k-welcome").hidden) return;
+    $("#k-welcome").hidden = true;
+    document.body.classList.remove("k-welcome-open");
+    try { localStorage.setItem("kf-welcome-seen", "1"); } catch (e) {}
+    if (S.view !== "design") show("design");
+    pulseBar();
+    if (document.activeElement) document.activeElement.blur();
+  }
+  /* Pick what's showing in a section, then move on to the next part of the page. */
+  function pickSection(sid, letter) {
+    S.picks[sid] = letter;
+    delete viewing[sid];
+    hideHint();
+    autoStyle(letter);
+    renderSection(sid);
+    var idx = -1; sections.forEach(function (s, i) { if (s.id === sid) idx = i; });
+    S.step = idx;
+    updatePanel(); save();
+    emit("kf:pick", { section: sid, option: letter });
+    clearTimeout(advanceTimer);
+    var nxt = sections[idx + 1];
+    if (sheetOpen) return; /* picking inside the More sheet: stay put */
+    if (nxt) {
+      note("Nice. Next: " + nxt.label);
+      advanceTimer = setTimeout(function () { S.step = idx + 1; updatePanel(); scrollToSection(nxt.id); save(); }, 650);
+    } else {
+      note("Nice. Next: colours");
+      advanceTimer = setTimeout(function () {
+        var a = $("#k-after"), b = $("#k-to-style");
+        if (MOBILE.matches && a) {
+          suppressScrollSync = Date.now() + 900;
+          a.scrollIntoView({ behavior: REDUCED.matches ? "auto" : "smooth", block: "center" });
+          b.classList.remove("flash"); void b.offsetWidth; b.classList.add("flash");
+        } else setStep(stepIndex("palette"), false);
+      }, 650);
+    }
   }
   function setSheet(on) {
     if (!MOBILE.matches) on = false;
@@ -731,15 +796,26 @@
       } else if (t.hasAttribute("data-mic-for")) {
         var mid = t.getAttribute("data-mic-for");
         SPEECH.toggle(t, function (txt) { addNote(mid, txt, true); });
-      } else if (t.hasAttribute("data-sec")) {
-        var sid = t.getAttribute("data-sec");
-        S.picks[sid] = t.getAttribute("data-v");
+      } else if (t.hasAttribute("data-welcome")) {
+        openWelcome();
+      } else if (t.id === "k-welcome-go") {
+        closeWelcome();
+      } else if (t.id === "k-bar-pick") {
+        var ps = steps[S.step];
+        if (ps.type === "section") pickSection(ps.id, shown(ps.id));
+      } else if (t.hasAttribute("data-sec") && t.classList.contains("k-pill")) {
+        /* Bar pill: preview only. */
+        var vs = t.getAttribute("data-sec"), vl = t.getAttribute("data-v");
+        clearTimeout(advanceTimer);
+        if (S.picks[vs] === vl) delete viewing[vs]; else viewing[vs] = vl;
         hideHint();
-        autoStyle(S.picks[sid]);
-        renderSection(sid);
-        steps.forEach(function (s, i) { if (s.id === sid) S.step = i; });
-        updatePanel(); scrollToSection(sid); save();
-        emit("kf:pick", { section: sid, option: S.picks[sid] });
+        autoStyle(vl);
+        renderSection(vs);
+        steps.forEach(function (s, i) { if (s.id === vs) S.step = i; });
+        updatePanel(); scrollToSection(vs);
+      } else if (t.hasAttribute("data-sec")) {
+        /* Option card in the side panel / More sheet: picks straight away. */
+        pickSection(t.getAttribute("data-sec"), t.getAttribute("data-v"));
       } else if (t.hasAttribute("data-palette")) {
         S.palette = t.getAttribute("data-palette");
         steps.forEach(function (s, i) { if (s.id === "palette") S.step = i; });
@@ -781,6 +857,7 @@
       } else if (t.id === "k-reset") {
         if (window.confirm("Clear all your picks and start again?")) {
           S = { picks: {}, palette: C.defaultPalette || palettes[0].id, font: C.defaultFont || fonts[0].id, edits: {}, requests: {}, reactions: {}, addons: [], form: S.form, view: "design", step: 0, size: S.size, sent: false, helperUsed: S.helperUsed };
+          viewing = {};
           renderSite(); applyStyle(); buildPanel(); buildAddons(); updatePanel(); show("design");
         }
       }
@@ -835,7 +912,11 @@
 
     if (window.ResizeObserver) new ResizeObserver(measurePanel).observe($("#k-bar"));
     $("#k-scrim").addEventListener("click", function () { setSheet(false); });
-    document.addEventListener("keydown", function (e) { if ((e.key === "Escape" || e.key === "Esc") && sheetOpen) { e.preventDefault(); setSheet(false); } });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape" && e.key !== "Esc") return;
+      if (!$("#k-welcome").hidden) { e.preventDefault(); closeWelcome(); }
+      else if (sheetOpen) { e.preventDefault(); setSheet(false); }
+    });
     window.addEventListener("resize", measurePanel);
     if (MOBILE.addEventListener) MOBILE.addEventListener("change", measurePanel);
   }

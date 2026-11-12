@@ -42,8 +42,9 @@ To hide extras that don't fit a client, add `addonsHide: ["online-store", "blog"
 
 - One slim bar at the bottom: the section in view on the left, option pills (A B C, or A B C D) on the right. It follows along as the client scrolls. A design with `badge` ("Original", "Current site") is the client's own site: its pill reads "D · Original" (or the badge text), and while it shows, a yellow "You're viewing your current website (Original)" banner sits at the top of the preview. Everywhere else it is called "Your current site (Original)".
 - The "⋯" button on the bar opens a sheet with the rest: progress, directions, reactions, the notes box, Edit text, All sections, prev/next.
-- After the last section, a "Next: colours" button switches the bar to colour swatches, then fonts, then on to Extras.
-- First visit only: a small note (closes for good) and a "Tap A–D to swap this section" hint until the first tap.
+- Tapping a letter previews that look; a green "✓ Pick" button on the bar picks it, shows "Nice. Next: …" and scrolls to the next part. (Option cards in the More sheet and on a computer pick straight away.)
+- After the last section the page scrolls to a "Next: colours" button, which switches the bar to colour swatches, then lettering, then on to Extras.
+- First visit only: a 3-step "How this works" card, then the bar pulses for a few seconds with a "Tap A–D here" label. The "?" in the header and "How this works" in the More sheet reopen the card.
 - The design helper is a small round chat button above the bar.
 
 On a computer the side panel shows everything, as before.

@@ -55,7 +55,8 @@
     if (step.type === "palette") return { t: where + "pick a colour theme. Tap each one and watch the preview change.", q: [CHIPS.next, CHIPS.what] };
     if (step.type === "font") return { t: where + "pick a lettering style. Tap each one to see it on your headings.", q: [CHIPS.next, CHIPS.what] };
     return {
-      t: where + "the " + step.label + " section. Tap " + orList(s.options || ["A", "B", "C"]) + (MOBILE.matches ? " on the bar" : "") + " to see each look, then pick your favourite." + origLine() + " To change the words, " + editWhere() + " and type right on the page. For anything else, " + boxWhere() + ".",
+      t: MOBILE.matches ? where + step.label + ". Tap " + orList(s.options || ["A", "B", "C"]) + " at the bottom to try a look. Like it? Tap \u2713 Pick."
+                        : where + step.label + ". Tap " + orList(s.options || ["A", "B", "C"]) + " in the panel to pick the one you like.",
       q: [CHIPS.next].concat(baseChips().slice(1, 2)),
       ask: step.id
     };

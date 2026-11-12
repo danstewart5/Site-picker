@@ -20,6 +20,7 @@
       <strong id="k-biz">Your new website</strong>
       <span id="k-where" aria-live="polite">Design picker</span>
     </div>
+    <button type="button" class="k-help" data-welcome aria-label="How this works">?</button>
     <nav aria-label="Steps">
       <ol class="k-steps">
         <li><button type="button" data-view="design"><span class="n">1</span><span class="lbl"><span class="k-sr">Step 1 </span>Design</span></button></li>
@@ -38,7 +39,8 @@
       <aside id="k-panel" class="k-panel" aria-label="Design choices">
         <div class="k-panel-head">
           <div class="k-sheet-head">
-            <strong id="k-sheet-title">More options</strong>
+            <strong id="k-sheet-title">More</strong>
+            <button type="button" class="k-btn small" data-welcome>How this works</button>
             <button type="button" class="k-btn small" id="k-sheet-x">Done</button>
           </div>
           <div class="k-progress">
@@ -68,17 +70,14 @@
       <!-- Phones: one slim bar that follows the section in view -->
       <div class="k-bar" id="k-bar" role="region" aria-label="Pick this section">
         <p class="k-bar-hint" id="k-bar-hint" hidden></p>
-        <div class="k-bar-lbl"><small id="k-bar-sub">Section 1 of 7</small><strong id="k-bar-name">Top of page</strong></div>
+        <div class="k-bar-lbl"><small id="k-bar-sub">Top of page</small><strong id="k-bar-name"></strong><button type="button" class="k-bar-pick" id="k-bar-pick" hidden>&#10003; Pick this</button></div>
         <div class="k-bar-opts" id="k-bar-opts" role="group" aria-label="Options"></div>
         <button type="button" class="k-bar-more" id="k-more" aria-expanded="false" aria-controls="k-panel" aria-label="More: notes, reactions, edit text, all sections">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="12" r="2.2"/></svg>
         </button>
       </div>
 
-      <div class="k-toast" id="k-start-note" role="status" hidden>
-        <p>Look through each website and pick your favourite parts from each one. Mix and match as much as you like. We'll take your choices and notes, customize it for your business, and send you back a polished version.</p>
-        <button type="button" class="k-toast-x" id="k-start-x" aria-label="Hide this note">&times;</button>
-      </div>
+      <div class="k-toast" id="k-note" role="status" aria-live="polite" hidden></div>
 
       <div class="k-preview">
         <div class="k-preview-bar">
@@ -100,7 +99,7 @@
           <div id="site" class="site" aria-label="Website preview"></div>
         </div>
         <div class="k-after" id="k-after">
-          <p>That's every section. Next, pick your colours and fonts.</p>
+          <p>All parts done? Now pick your colours.</p>
           <button type="button" class="k-btn primary" id="k-to-style">Next: colours</button>
         </div>
       </div>
@@ -166,6 +165,20 @@
       </div>
     </div>
   </main>
+
+  <!-- First-visit "How this works" card (reopen with ? or More) -->
+  <div class="k-welcome" id="k-welcome" hidden>
+    <div class="k-welcome-card" role="dialog" aria-modal="true" aria-labelledby="k-welcome-h">
+      <h2 id="k-welcome-h">How this works</h2>
+      <ol>
+        <li><span class="k-wi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M6 13l6 6 6-6"/></svg></span><span>Scroll down to look at your website.</span></li>
+        <li><span class="k-wi pills" aria-hidden="true" id="k-wi-pills"><i>A</i><i>B</i><i>C</i></span><span>Tap <b id="k-w-letters">A, B or C</b> <span id="k-w-where">at the bottom</span> to try a different look.</span></li>
+        <li><span class="k-wi pick" aria-hidden="true" id="k-wi-pick">&#10003; Pick</span><span id="k-w-pick">Like it? Tap <b>&#10003; Pick</b> and keep scrolling.</span></li>
+      </ol>
+      <p class="k-welcome-end">When you're done, tap Send. We'll polish it and send it back.</p>
+      <button type="button" class="k-btn primary k-welcome-go" id="k-welcome-go">Got it, let's start</button>
+    </div>
+  </div>
 
   <!-- Static copy of the form so Netlify detects it at deploy time. Keep field names in sync with picker.js. -->
   <form name="site-picks" data-netlify="true" netlify-honeypot="bot-field" hidden>

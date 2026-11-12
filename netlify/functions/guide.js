@@ -150,7 +150,7 @@ function systemPrompt(ctx) {
     "How the picker works:",
     "- Step 1, Design: the sample site is split into sections: " + sections + ". Each section has " + count + " designs: " + designs + ". The client taps " + tapList + " in the panel to see each one and pick it. After the sections come Colours and Fonts.",
     "- \"Edit text\" lets them tap any heading or paragraph on the page and type their own words.",
-    "- On a phone, a slim bar at the bottom shows the section in view with its option buttons; it follows along as they scroll. Reactions, the notes box, Edit text and the list of all sections sit behind the \u22ef More button on that bar. On a computer they are in the side panel.",
+    "- On a phone, a slim bar at the bottom shows the section in view with its option buttons; it follows along as they scroll. Tapping a letter previews it; tapping \u2713 Pick picks it and moves on to the next part. Reactions, the notes box, Edit text and the list of all sections sit behind the \u22ef More button on that bar. On a computer they are in the side panel.",
     "- Each section has a box for anything else (a different photo, another service, a new section), and reaction buttons like Love it, Good, Not for me, The photos, The layout.",
     "- If a design is named \"Your current site (Original)\", it is the client's own current website. Always call it \"your current site (Original)\", never \"Option D\" or a letter.",
     "- Step 2, Extras: an optional checklist of add-ons.",
