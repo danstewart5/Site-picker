@@ -55,20 +55,25 @@
     if (step.type === "palette") return { t: where + "pick a colour theme. Tap each one and watch the preview change.", q: [CHIPS.next, CHIPS.what] };
     if (step.type === "font") return { t: where + "pick a lettering style. Tap each one to see it on your headings.", q: [CHIPS.next, CHIPS.what] };
     return {
-      t: where + "the " + step.label + " section. Tap " + orList(s.options || ["A", "B", "C"]) + " to see each look, then pick your favourite. To change the words, tap Edit text and type right on the page, or write anything else in the box under the options.",
+      t: where + "the " + step.label + " section. Tap " + orList(s.options || ["A", "B", "C"]) + (MOBILE.matches ? " on the bar" : "") + " to see each look, then pick your favourite." + origLine() + " To change the words, " + editWhere() + " and type right on the page. For anything else, " + boxWhere() + ".",
       q: [CHIPS.next].concat(baseChips().slice(1, 2)),
       ask: step.id
     };
   }
+  function optName(v) { return P.optionName ? P.optionName(v) : "Option " + v; }
+  function origLine() { var o = P.originalLetter && P.originalLetter(); return o ? " " + o + " is your current site (Original)." : ""; }
+  /* Where the notes box and Edit text live: behind the "More" button on phones, in the side panel on computers. */
+  function boxWhere() { return MOBILE.matches ? "tap the \u22ef More button on the bottom bar and write it in the box there" : "write it in the box under that section's options"; }
+  function editWhere() { return MOBILE.matches ? "tap \u22ef More, then Edit text" : "tap Edit text"; }
   function orList(a) { return a.length > 1 ? a.slice(0, -1).join(", ") + " or " + a[a.length - 1] : (a[0] || ""); }
   function askLine(sec, v) {
-    return { t: "What do you think of Option " + v + " for " + P.sectionLabel(sec) + "? Tap any that fit.", q: reactChips(sec, v).concat([CHIPS.next, CHIPS.what]) };
+    return { t: "What do you think of " + (/^Option/.test(optName(v)) ? optName(v) : "your current site (Original)") + " for " + P.sectionLabel(sec) + "? Tap any that fit.", q: reactChips(sec, v).concat([CHIPS.next, CHIPS.what]) };
   }
 
   function localAnswer(text, intent) {
     var s = P.state(), low = (text || "").toLowerCase();
     if (intent === "wording" || (!intent && /\b(word|wording|text|say|write|headline|title|change the)\b/.test(low))) {
-      return { t: "To use your own words, tap Edit text, then tap any heading or paragraph and type. Want something else changed, like a photo? Write it in the box under that section's options.", q: [CHIPS.next, CHIPS.done] };
+      return { t: "To use your own words, " + editWhere() + ", then tap any heading or paragraph and type. Want something else changed, like a photo? " + boxWhere().charAt(0).toUpperCase() + boxWhere().slice(1) + ".", q: [CHIPS.next, CHIPS.done] };
     }
     if (intent === "done" || (!intent && /\b(done|finished|what'?s next|next|send)\b/.test(low))) {
       if (s.view === "design") return { t: "Nice! Next you can tick any extras you'd like, then review and send your picks to " + owner() + ".", q: [CHIPS.extras, CHIPS.review] };
@@ -78,7 +83,7 @@
     if (intent === "what") return tipFor(s);
     if (/(price|cost|how much|\$|charge|pay|fee|budget)/.test(low)) return { t: "Good question for " + owner() + ". He'll go over pricing with you after you send your picks, and there's no commitment here.", q: baseChips() };
     if (/(how long|when|timeline|ready|launch|deadline)/.test(low)) return { t: owner() + " will talk timing with you once he's seen your picks. You can mention any deadline in the notes on the Send screen.", q: baseChips() };
-    if (/(photo|picture|image|logo|pic)/.test(low)) return { t: "The photos here are just placeholders. Write what you'd like in the box under that section (for example, \"use our shop photo\") and " + owner() + " will sort it out.", q: baseChips() };
+    if (/(photo|picture|image|logo|pic)/.test(low)) return { t: "The photos here are just placeholders. To ask for your own, " + boxWhere() + " (for example, \"use our shop photo\") and " + owner() + " will sort it out.", q: baseChips() };
     if (/(colou?r|font|letter)/.test(low)) return { t: "Colours and fonts come after the sections. You can jump there any time.", q: [{ l: "Show me colours", intent: "goto", to: "palette" }, CHIPS.what] };
     if (/(who are you|are you (a )?(bot|robot|real|human|person)|what are you)/.test(low)) return { t: "I'm the design helper for this page, an assistant that walks you through it. " + owner() + " is the real person who'll follow up with you.", q: baseChips() };
     if (/(extra|add-?on|booking|store|blog)/.test(low)) return { t: "Extras are the next screen after the design. Tick anything you're curious about, and " + owner() + " can explain more.", q: [CHIPS.extras, CHIPS.what] };
@@ -232,7 +237,7 @@
     root.innerHTML =
       '<button type="button" class="kg-bubble" id="kg-bubble" aria-expanded="false" aria-controls="kg-panel">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M9 10h.01M12 10h.01M15 10h.01"/></svg>' +
-        "<span>Design helper</span></button>" +
+        '<span class="k-sr">Design helper</span></button>' +
       '<section class="kg-panel" id="kg-panel" role="dialog" aria-modal="false" aria-labelledby="kg-title" hidden>' +
         '<header class="kg-head"><div><h2 id="kg-title">Design helper</h2><p>Here to help you pick</p></div>' +
           '<button type="button" class="kg-x" id="kg-close" aria-label="Close helper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>' +
@@ -275,12 +280,12 @@
     /* If the picker panel leaves too little room above it on a phone, sit over it as a bottom sheet instead. */
     var roomy = function () {
       var ph = parseFloat(getComputedStyle(document.body).getPropertyValue("--kg-bottom")) || 0;
-      var panelH = document.body.getAttribute("data-view") === "design" ? (document.getElementById("k-panel") || {}).offsetHeight || 0 : ph;
+      var panelH = document.body.getAttribute("data-view") === "design" ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--k-panel-h")) || 0 : ph;
       document.body.classList.toggle("kg-cover", MOBILE.matches && window.innerHeight - 56 - panelH < 300);
     };
     document.addEventListener("kf:change", roomy);
     window.addEventListener("resize", roomy);
-    if (window.ResizeObserver && document.getElementById("k-panel")) new ResizeObserver(roomy).observe(document.getElementById("k-panel"));
+    if (window.ResizeObserver && document.getElementById("k-bar")) new ResizeObserver(roomy).observe(document.getElementById("k-bar"));
     roomy();
 
     /* Keep the panel above the on-screen keyboard where the browser reports it. */

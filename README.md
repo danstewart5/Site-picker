@@ -38,6 +38,16 @@ Each design uses its own layout: design 1 = layout A, design 2 = B, design 3 = C
 
 To hide extras that don't fit a client, add `addonsHide: ["online-store", "blog"]` to their config. Extras that suit the client's industry get a "Great for ..." badge automatically.
 
+## How the picker looks on a phone
+
+- One slim bar at the bottom: the section in view on the left, option pills (A B C, or A B C D) on the right. It follows along as the client scrolls. A design with `badge` ("Original", "Current site") is the client's own site: its pill reads "D · Original" (or the badge text), and while it shows, a yellow "You're viewing your current website (Original)" banner sits at the top of the preview. Everywhere else it is called "Your current site (Original)".
+- The "⋯" button on the bar opens a sheet with the rest: progress, directions, reactions, the notes box, Edit text, All sections, prev/next.
+- After the last section, a "Next: colours" button switches the bar to colour swatches, then fonts, then on to Extras.
+- First visit only: a small note (closes for good) and a "Tap A–D to swap this section" hint until the first tap.
+- The design helper is a small round chat button above the bar.
+
+On a computer the side panel shows everything, as before.
+
 ## Deploy on Netlify
 
 1. Netlify → Add new site → Import an existing project → GitHub → pick this repo.
@@ -54,7 +64,7 @@ Note: form detection needs to be on (Netlify → Forms → Enable form detection
 
 ## Design helper
 
-A "Need help?" button on the picker opens a chat that walks the client through each step, answers questions and suggests wording (with "Use this wording" and "Add to my notes" buttons). It never shows prices, and it tells the client Dan (Keen Falcon) will follow up.
+A small round chat button on the picker opens a chat that walks the client through each step, answers questions and suggests wording (with "Use this wording" and "Add to my notes" buttons). It never shows prices, and it tells the client Dan (Keen Falcon) will follow up.
 
 It works with no setup: without a key it uses built-in step-by-step tips. To turn on live answers (from the Anthropic API, via `netlify/functions/guide.js`):
 

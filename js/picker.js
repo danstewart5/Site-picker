@@ -28,7 +28,7 @@
     { id: "us", label: "Feels like us" }
   ];
   function reactionLabel(id) { var r = REACTIONS.filter(function (x) { return x.id === id; })[0]; return r ? r.label : id; }
-  var editing = false, suppressScrollSync = 0, saveTimer = null;
+  var editing = false, suppressScrollSync = 0, saveTimer = null, hintOn = false, sheetOpen = false, barHtml = "";
 
   /* ---------- storage (never throws) ---------- */
   function flush() {
@@ -108,6 +108,12 @@
     return o || base.label || id;
   }
   function design(letter) { return designs.filter(function (d) { return d.id === letter; })[0] || designs[0]; }
+  /* The client's own current/original site, when a design is one (config: badge "Original" / "Current site", or original: true). */
+  var ORIG_NAME = "Your current site (Original)";
+  function isOrig(letter) { var d = designs.filter(function (x) { return x.id === letter; })[0]; return !!(d && (d.original || /original|current/i.test(d.badge || ""))); }
+  function optName(letter) { return isOrig(letter) ? ORIG_NAME : "Option " + letter; }
+  function shortName(letter) { return isOrig(letter) ? "Original" : letter; }
+  function origLetter() { var d = designs.filter(function (x) { return isOrig(x.id); })[0]; return d ? d.id : null; }
   function contentFor(id, letter) {
     var d = design(letter);
     return Object.assign({}, (C.content && C.content[id]) || {}, (d.content && d.content[id]) || {});
@@ -167,12 +173,14 @@
     bind();
     setSize(S.size);
 
-    /* "Starting point" note: hide for good once dismissed. */
-    var note = $("#k-start-note");
-    if (note) {
-      try { if (localStorage.getItem("kf-start-note-hidden") === "1") note.hidden = true; } catch (e) {}
-      $("#k-start-x").addEventListener("click", function () { note.hidden = true; try { localStorage.setItem("kf-start-note-hidden", "1"); } catch (e) {} measurePanel(); });
-    }
+    /* "Starting point" note: a small toast on the first visit only, gone for good once closed. */
+    var note = $("#k-start-note"), seen = false;
+    try { seen = localStorage.getItem("kf-start-note-hidden") === "1"; } catch (e) {}
+    note.hidden = seen;
+    $("#k-start-x").addEventListener("click", function () { note.hidden = true; try { localStorage.setItem("kf-start-note-hidden", "1"); } catch (e) {} });
+    /* First time only: a tiny hint on the bar until the first tap on an option. */
+    try { hintOn = localStorage.getItem("kf-bar-hint-seen") !== "1"; } catch (e) { hintOn = false; }
+    updatePanel();
 
     $("#k-loading").hidden = true;
     show(S.sent && S.view === "done" ? "done" : (["design", "addons", "review"].indexOf(S.view) > -1 ? S.view : "design"), true);
@@ -229,9 +237,9 @@
     var el = $("#sec-" + id);
     U.resetPh(idx * 3);
     el.className = "s s-" + id + " v-" + layout;
-    el.setAttribute("aria-label", labelOf(id) + ", option " + letter);
+    el.setAttribute("aria-label", labelOf(id) + ", " + optName(letter));
     el.innerHTML = (fn ? fn(contentFor(id, letter), ctx()) : "") +
-      '<span class="k-sec-tag" aria-hidden="true">' + esc(labelOf(id)) + " · " + letter + (S.picks[id] ? " ✓" : "") + "</span>";
+      '<span class="k-sec-tag" aria-hidden="true">' + esc(labelOf(id)) + " · " + esc(shortName(letter)) + (S.picks[id] ? " ✓" : "") + "</span>";
     $$("[data-edit]", el).forEach(function (n) { n.setAttribute("data-orig", n.textContent); });
     applyEdits(el, id, letter);
     if (editing) setEditable(el, true);
@@ -257,6 +265,7 @@
     site.classList.toggle("editing", on);
     setEditable(site, on);
     $("#k-edit-banner").hidden = !on;
+    if (C) renderBar();
     $$("#k-edit, #k-edit-mobile").forEach(function (b) { b.setAttribute("aria-pressed", on ? "true" : "false"); });
     if (!on) { document.body.classList.remove("typing"); if (document.activeElement && document.activeElement.closest && document.activeElement.closest("#site")) document.activeElement.blur(); }
   }
@@ -282,9 +291,9 @@
       var opts = "";
       if (st.type === "section") {
         opts = designs.map(function (d) {
-          return '<button type="button" class="k-opt" data-sec="' + st.id + '" data-v="' + d.id + '" aria-pressed="false" aria-label="' +
-            esc(st.label) + ": option " + d.id + (d.badge ? ", " + esc(d.badge) : "") + '"' + (d.blurb ? ' title="' + esc(d.blurb) + '"' : "") + '><span class="l">' + d.id + '</span><span class="d">Option ' + d.id + "</span>" +
-            (d.badge ? '<span class="k-opt-badge">' + esc(d.badge) + "</span>" : "") + "</button>";
+          var o = isOrig(d.id);
+          return '<button type="button" class="k-opt' + (o ? " orig" : "") + '" data-sec="' + st.id + '" data-v="' + d.id + '" aria-pressed="false" aria-label="' +
+            esc(st.label) + ": " + esc(optName(d.id)) + '"' + (d.blurb ? ' title="' + esc(d.blurb) + '"' : "") + '><span class="l">' + d.id + '</span><span class="d">' + esc(optName(d.id)) + "</span></button>";
         }).join("");
       } else if (st.type === "palette") {
         opts = palettes.map(function (p) {
@@ -302,7 +311,7 @@
       return '<div class="k-row" id="row-' + st.id + '" data-step="' + i + '">' +
         '<div class="k-row-head"><h2>' + (i + 1) + ". " + esc(st.label) + "<small>" + esc(st.hint || "") + '</small></h2><span class="k-status" id="status-' + st.id + '"></span></div>' +
         '<p class="k-how">' + esc(howTo(st)) + "</p>" +
-        '<div class="k-opts" role="group" aria-label="' + esc(st.label) + '" style="--n:' + Math.min(n, 4) + '">' + opts + "</div>" +
+        '<div class="k-opts' + (n >= 4 ? " n4" : "") + '" role="group" aria-label="' + esc(st.label) + '" style="--n:' + Math.min(n, 4) + '">' + opts + "</div>" +
         (st.type === "section" ? reactRow(st) : "") +
         '<div class="k-edits-note" id="edits-' + st.id + '" hidden></div>' +
         (st.type === "section" ?
@@ -321,7 +330,9 @@
     if (st.type === "palette") return "Pick the colours you like best.";
     if (st.type === "font") return "Pick a lettering style.";
     var ids = designs.map(function (d) { return d.id; });
-    return "Pick your favourite version of this section. Tap " + (ids.length > 1 ? ids.slice(0, -1).join(", ") + " or " + ids[ids.length - 1] : ids[0]) + ".";
+    var o = origLetter();
+    return "Pick your favourite version of this section. Tap " + (ids.length > 1 ? ids.slice(0, -1).join(", ") + " or " + ids[ids.length - 1] : ids[0]) + "." +
+      (o ? " " + o + " is your current site (Original)." : "");
   }
   function reactRow(st) {
     return '<div class="k-react" id="react-' + st.id + '" role="group" aria-label="What do you think of this design?">' +
@@ -371,7 +382,7 @@
     $$(".k-opt[data-font]").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-font") === S.font ? "true" : "false"); });
     sections.forEach(function (s) {
       var st = $("#status-" + s.id), n = countEdits(s.id), note = $("#edits-" + s.id);
-      st.textContent = S.picks[s.id] ? "Picked: " + S.picks[s.id] : "Not picked yet";
+      st.textContent = S.picks[s.id] ? "Picked: " + shortName(S.picks[s.id]) : "Not picked yet";
       st.classList.toggle("done", !!S.picks[s.id]);
       note.hidden = !n;
       note.textContent = n ? "✎ " + n + " text change" + (n > 1 ? "s" : "") : "";
@@ -379,8 +390,8 @@
       if (flag) flag.textContent = (S.requests[s.id] || "").trim() ? "✓ Note saved" : "";
       var letter = shown(s.id), mine = reactionsFor(s.id, letter), row = $("#react-" + s.id);
       if (row) {
-        row.setAttribute("aria-label", "What do you think of option " + letter + "?");
-        $(".k-react-lbl", row).textContent = letter + ":";
+        row.setAttribute("aria-label", "What do you think of " + (isOrig(letter) ? "your current site (Original)" : "option " + letter) + "?");
+        $(".k-react-lbl", row).textContent = shortName(letter) + ":";
         $$(".k-chip", row).forEach(function (c) { c.setAttribute("aria-pressed", mine.indexOf(c.getAttribute("data-react")) > -1 ? "true" : "false"); });
       }
     });
@@ -393,7 +404,73 @@
     $("#k-step-count").textContent = (S.step + 1) + " / " + steps.length;
     $("#k-prev").disabled = S.step === 0;
     $("#k-next").setAttribute("aria-label", S.step === steps.length - 1 ? "Next: choose extras" : "Next section");
+    renderBar();
     emit("kf:change");
+  }
+
+  /* ---------- slim bar (phones) ---------- */
+  function renderBar() {
+    var st = steps[S.step], sub, name, opts, next = "";
+    if (st.type === "section") {
+      var secIdx = 0; sections.forEach(function (s, i) { if (s.id === st.id) secIdx = i; });
+      var ids = designs.map(function (d) { return d.id; });
+      sub = (secIdx + 1) + " of " + sections.length + (S.picks[st.id] ? " \u00b7 picked \u2713" : "");
+      $("#k-bar-hint").textContent = "Tap " + ids[0] + "\u2013" + ids[ids.length - 1] + " to swap this section";
+      name = st.label;
+      opts = designs.map(function (d) {
+        var o = isOrig(d.id), on = S.picks[st.id] === d.id, showing = !S.picks[st.id] && shown(st.id) === d.id;
+        return '<button type="button" class="k-pill' + (o ? " orig" : "") + (showing ? " showing" : "") + '" data-sec="' + st.id + '" data-v="' + d.id + '" aria-pressed="' + on + '" aria-label="' +
+          esc(st.label) + ": " + esc(optName(d.id)) + '">' + d.id + (o ? '<span class="t"> \u00b7 ' + esc(d.badge || "Original") + "</span>" : "") + "</button>";
+      }).join("");
+    } else if (st.type === "palette") {
+      sub = "Colours"; name = palette().name;
+      opts = palettes.map(function (p) {
+        return '<button type="button" class="k-pill sw" data-palette="' + esc(p.id) + '" aria-pressed="' + (p.id === S.palette) + '" aria-label="Colours: ' + esc(p.name) + '">' +
+          '<span class="k-swatch" aria-hidden="true"><i style="background:' + esc(p.primary) + '"></i><i style="background:' + esc(p.accent) + '"></i></span></button>';
+      }).join("");
+      next = '<button type="button" class="k-pill go" id="k-bar-next" aria-label="Next: fonts">\u203a</button>';
+    } else {
+      sub = "Fonts"; name = font().name;
+      opts = fonts.map(function (f) {
+        return '<button type="button" class="k-pill aa" data-font="' + esc(f.id) + '" aria-pressed="' + (f.id === S.font) + '" aria-label="Fonts: ' + esc(f.name) + '">' +
+          '<span aria-hidden="true" style="font-family:' + esc(f.head) + ";font-weight:" + (f.weight || 700) + '">Aa</span></button>';
+      }).join("");
+      next = '<button type="button" class="k-pill go" id="k-bar-next" aria-label="Next: choose extras">\u203a</button>';
+    }
+    $("#k-bar-sub").textContent = sub;
+    $("#k-bar-hint").hidden = !(hintOn && st.type === "section");
+    document.body.classList.toggle("k-hint", hintOn && st.type === "section");
+    $("#k-bar-name").textContent = name;
+    $("#k-bar").classList.toggle("style", st.type !== "section");
+    $("#k-bar").setAttribute("aria-label", "Pick: " + (st.type === "section" ? st.label : sub));
+    var html = opts + next;
+    if (html !== barHtml) {
+      var box = $("#k-bar-opts"), a = document.activeElement, key = null;
+      if (a && box.contains(a)) key = a.id ? "#" + a.id : "[" + ["data-v", "data-palette", "data-font"].filter(function (k) { return a.hasAttribute(k); }).map(function (k) { return k + '="' + a.getAttribute(k) + '"'; })[0] + "]";
+      box.innerHTML = html; barHtml = html;
+      if (key) { var n = box.querySelector(key); if (n) n.focus({ preventScroll: true }); }
+    }
+    var ob = $("#k-orig-banner"), oon = S.view === "design" && !editing && st.type === "section" && isOrig(shown(st.id));
+    ob.hidden = !oon;
+  }
+  function hideHint() {
+    if (!hintOn) return;
+    hintOn = false;
+    try { localStorage.setItem("kf-bar-hint-seen", "1"); } catch (e) {}
+  }
+  function setSheet(on) {
+    if (!MOBILE.matches) on = false;
+    if (on === sheetOpen) return;
+    sheetOpen = on;
+    var p = $("#k-panel");
+    p.classList.toggle("open", on);
+    $("#k-scrim").hidden = !on;
+    $("#k-more").setAttribute("aria-expanded", on ? "true" : "false");
+    document.body.classList.toggle("k-sheet-open", on);
+    if (on) {
+      var r = $("#row-" + steps[S.step].id); if (r) r.scrollIntoView({ block: "nearest" });
+      setTimeout(function () { $("#k-sheet-x").focus({ preventScroll: true }); }, 30);
+    } else if (p.contains(document.activeElement)) $("#k-more").focus({ preventScroll: true });
   }
 
   function setStep(i, scroll) {
@@ -409,7 +486,7 @@
     var el = $("#sec-" + id);
     if (!el) return;
     suppressScrollSync = Date.now() + 900;
-    var offset = MOBILE.matches ? 56 : 56 + 68;
+    var offset = (MOBILE.matches ? 56 : 56 + 68) + (isOrig(shown(id)) ? 30 : 0);
     var y = el.getBoundingClientRect().top + window.pageYOffset - offset;
     window.scrollTo({ top: y, behavior: REDUCED.matches ? "auto" : "smooth" });
     el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
@@ -417,7 +494,7 @@
 
   function syncStepToScroll() {
     if (Date.now() < suppressScrollSync || S.view !== "design" || editing) return;
-    if ($("#k-panel").classList.contains("expanded")) return;
+    if (sheetOpen) return;
     var line = window.innerHeight * 0.35, found = null;
     sections.forEach(function (s, i) {
       var r = $("#sec-" + s.id).getBoundingClientRect();
@@ -427,7 +504,8 @@
   }
 
   function measurePanel() {
-    var h = MOBILE.matches && S.view === "design" ? $("#k-panel").offsetHeight : 0;
+    var h = MOBILE.matches && S.view === "design" ? $("#k-bar").offsetHeight : 0;
+    if (!MOBILE.matches && sheetOpen) setSheet(false);
     document.documentElement.style.setProperty("--k-panel-h", h + "px");
   }
 
@@ -513,14 +591,15 @@
   function sectionsText() {
     return sections.map(function (s) {
       var d = design(shown(s.id));
-      return s.label + ": " + (S.picks[s.id] ? "Option " + S.picks[s.id] : "Not picked (saw Option " + shown(s.id) + ")") + (d.name ? " - " + d.name : "");
+      var l = S.picks[s.id] || shown(s.id), nm = isOrig(l) ? ORIG_NAME + " [" + l + "]" : "Option " + l + (d.name ? " - " + d.name : "");
+      return s.label + ": " + (S.picks[s.id] ? nm : "Not picked (saw " + nm + ")");
     }).join("\n");
   }
 
   function renderSummary() {
     var tc = textChanges();
     var sec = sections.map(function (s) {
-      return "<dt>" + esc(s.label) + "</dt><dd>" + (S.picks[s.id] ? "Option " + esc(S.picks[s.id]) + (design(S.picks[s.id]).badge ? " (" + esc(design(S.picks[s.id]).badge) + ")" : "") : '<span class="warn">Not picked (showing ' + esc(shown(s.id)) + ")</span>") + "</dd>";
+      return "<dt>" + esc(s.label) + "</dt><dd>" + (S.picks[s.id] ? esc(optName(S.picks[s.id])) : '<span class="warn">Not picked (showing ' + esc(isOrig(shown(s.id)) ? ORIG_NAME : shown(s.id)) + ")</span>") + "</dd>";
     }).join("");
     var missing = sections.length - pickedCount();
     $("#k-summary").innerHTML =
@@ -533,8 +612,8 @@
         (tc.length ? "<ul>" + tc.map(function (t) { return "<li><strong>" + esc(t.section) + ":</strong> “" + esc(t.text) + "”</li>"; }).join("") + "</ul>"
                    : '<p class="none">No changes. Use “Edit text” on the design step to change any wording.</p>') + "</section>" +
       '<section class="k-summary"><h2>What you liked <button type="button" class="k-btn small" data-go="design">Change</button></h2>' +
-        (reactionList().length ? "<ul>" + reactionList().map(function (r) { return "<li><strong>" + esc(r.section) + " (Option " + esc(r.option) + "):</strong> " + esc(r.text) + "</li>"; }).join("") + "</ul>"
-                   : '<p class="none">Nothing yet. Tap the little reactions under each section (like “Love it” or “The photos”) to tell us what you like.</p>') + "</section>" +
+        (reactionList().length ? "<ul>" + reactionList().map(function (r) { return "<li><strong>" + esc(r.section) + " \u00b7 " + esc(optName(r.option)) + ":</strong> " + esc(r.text) + "</li>"; }).join("") + "</ul>"
+                   : '<p class="none">Nothing yet. Tap the little reactions on each section (like “Love it” or “The photos”, under ⋯ More on a phone) to tell us what you like.</p>') + "</section>" +
       '<section class="k-summary"><h2>Other changes you asked for <button type="button" class="k-btn small" data-go="design">Change</button></h2>' +
         (requestList().length ? "<ul>" + requestList().map(function (r) { return "<li><strong>" + esc(r.section) + ":</strong> " + esc(r.text) + "</li>"; }).join("") + "</ul>"
                    : '<p class="none">None. Each section has a box where you can describe anything else you\'d like changed.</p>') + "</section>" +
@@ -565,7 +644,7 @@
       sections: sectionsText(),
       style: "Colours: " + palette().name + "\nFonts: " + font().name,
       text_changes: tc.length ? tc.map(function (t) { return "[" + t.section + " / " + t.key + "]\nWas: " + t.was + "\nNow: " + t.text; }).join("\n\n") : "None",
-      reactions: reactionList().length ? reactionList().map(function (r) { return "[" + r.section + " / Option " + r.option + "] " + r.text; }).join("\n") : "None",
+      reactions: reactionList().length ? reactionList().map(function (r) { return "[" + r.section + " / " + (isOrig(r.option) ? ORIG_NAME + ", " + r.option : "Option " + r.option) + "] " + r.text; }).join("\n") : "None",
       helper_used: S.helperUsed ? "yes" : "no",
       change_requests: requestList().length ? requestList().map(function (r) { return "[" + r.section + "] " + r.text; }).join("\n\n") : "None",
       addons: S.addons.length ? S.addons.map(function (id) { return addonName(id) + (priceText(id) ? " (" + priceText(id) + ")" : ""); }).join("\n") + "" : "None",
@@ -623,6 +702,7 @@
     if (where) where.textContent = view === "done" ? "All done: your picks are in" :
       "Step " + (cur + 1) + " of 3: " + ["pick your design", "choose extras", "review & send"][cur];
     if (view !== "design" && editing) setEditing(false);
+    setSheet(false);
     document.body.setAttribute("data-view", view);
     if (view === "review") renderSummary();
     if (view === "addons") updateAddonCount();
@@ -654,6 +734,7 @@
       } else if (t.hasAttribute("data-sec")) {
         var sid = t.getAttribute("data-sec");
         S.picks[sid] = t.getAttribute("data-v");
+        hideHint();
         autoStyle(S.picks[sid]);
         renderSection(sid);
         steps.forEach(function (s, i) { if (s.id === sid) S.step = i; });
@@ -677,7 +758,13 @@
         setSize(t.getAttribute("data-size")); save();
       } else if (t.id === "k-prev") {
         setStep(S.step - 1, true);
-      } else if (t.id === "k-next") {
+      } else if (t.id === "k-more") {
+        setSheet(!sheetOpen);
+      } else if (t.id === "k-sheet-x") {
+        setSheet(false);
+      } else if (t.id === "k-to-style") {
+        setStep(stepIndex("palette"), false);
+      } else if (t.id === "k-next" || t.id === "k-bar-next") {
         if (S.step === steps.length - 1) show("addons"); else setStep(S.step + 1, true);
       } else if (t.id === "k-expand") {
         var p = $("#k-panel"), on = !p.classList.contains("expanded");
@@ -688,6 +775,7 @@
         measurePanel();
       } else if (t.id === "k-edit" || t.id === "k-edit-mobile") {
         setEditing(!editing);
+        if (editing) setSheet(false);
       } else if (t.id === "k-edit-done") {
         setEditing(false);
       } else if (t.id === "k-reset") {
@@ -745,7 +833,9 @@
     window.addEventListener("pagehide", flush);
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") flush(); });
 
-    if (window.ResizeObserver) new ResizeObserver(measurePanel).observe($("#k-panel"));
+    if (window.ResizeObserver) new ResizeObserver(measurePanel).observe($("#k-bar"));
+    $("#k-scrim").addEventListener("click", function () { setSheet(false); });
+    document.addEventListener("keydown", function (e) { if ((e.key === "Escape" || e.key === "Esc") && sheetOpen) { e.preventDefault(); setSheet(false); } });
     window.addEventListener("resize", measurePanel);
     if (MOBILE.addEventListener) MOBILE.addEventListener("change", measurePanel);
   }
@@ -816,7 +906,7 @@
         business: C.businessName, industry: C.industry || "",
         view: S.view, step: { type: st.type || "", id: st.id || "", label: st.label || "", index: S.step + 1, total: steps.length },
         sections: sections.map(function (s) { return { id: s.id, label: s.label, picked: S.picks[s.id] || "", showing: shown(s.id), edits: countEdits(s.id), note: (S.requests[s.id] || "").slice(0, 200) }; }),
-        designs: designs.map(function (d) { return { id: d.id, name: d.name || "" }; }),
+        designs: designs.map(function (d) { return { id: d.id, name: isOrig(d.id) ? ORIG_NAME : (d.name || "") }; }),
         palette: { current: palette().name, options: palettes.map(function (p) { return p.name; }) },
         font: { current: font().name, options: fonts.map(function (f) { return f.name; }) },
         extras: S.addons.map(addonName),
@@ -825,6 +915,8 @@
       };
     },
     sectionText: sectionText,
+    optionName: optName,
+    originalLetter: origLetter,
     sectionLabel: labelOf,
     hasSection: function (id) { return sections.some(function (s) { return s.id === id; }); },
     goto: gotoStep,
