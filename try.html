@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <title>Try it yourself | Keen Falcon</title>
+  <meta name="description" content="Pick a look for a sample business website, section by section.">
+  <link rel="stylesheet" href="/css/picker.css">
+  <style>
+    .t-wrap { max-width: 520px; margin: 0 auto; padding: 28px 16px 40px; min-height: 100dvh; display: flex; flex-direction: column; }
+    .t-brand { font-weight: 800; font-size: .95rem; color: var(--k-brand); text-decoration: none; margin-bottom: 26px; align-self: flex-start; }
+    .t-wrap h1 { font-size: clamp(1.6rem, 6.5vw, 2.2rem); line-height: 1.15; margin: 0 0 22px; }
+    .t-sub { color: var(--k-ink-2); margin: 0 0 22px; font-size: 1rem; }
+    .t-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+    .t-btn { display: flex; align-items: center; gap: 16px; min-height: 84px; padding: 16px 18px; border-radius: 18px; border: 2px solid var(--k-line); background: #fff;
+      color: var(--k-ink); text-decoration: none; font-weight: 800; font-size: 1.2rem; line-height: 1.2; box-shadow: 0 4px 14px rgba(15,23,42,.06); }
+    .t-btn:hover, .t-btn:focus-visible { border-color: var(--k-brand); background: var(--k-brand-soft); }
+    .t-btn small { display: block; font-weight: 500; font-size: .88rem; color: var(--k-ink-2); margin-top: 3px; }
+    .t-ic { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--k-brand-soft); color: var(--k-brand); }
+    .t-ic svg { width: 28px; height: 28px; }
+    .t-go { margin-left: auto; flex: none; color: var(--k-brand); font-size: 1.6rem; font-weight: 700; }
+    .t-foot { margin-top: auto; padding-top: 30px; color: var(--k-ink-2); font-size: .9rem; text-align: center; }
+    .t-foot a { color: var(--k-brand); }
+  </style>
+</head>
+<body>
+  <main class="t-wrap">
+    <a class="t-brand" href="https://keenfalcon.ca">Keen Falcon</a>
+    <h1>Pick your type of business</h1>
+    <ul class="t-list">
+      <li><a class="t-btn" href="/picker.html?client=tidewater&amp;demo=1">
+        <span class="t-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span>
+        <span>Trades &amp; contractors<small>Builders, renovators, plumbers</small></span><span class="t-go" aria-hidden="true">&rsaquo;</span></a></li>
+      <li><a class="t-btn" href="/picker.html?client=northshore&amp;demo=1">
+        <span class="t-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span>
+        <span>Health &amp; wellness<small>Clinics, spas, therapists</small></span><span class="t-go" aria-hidden="true">&rsaquo;</span></a></li>
+      <li><a class="t-btn" href="/picker.html?client=harbour-pine&amp;demo=1">
+        <span class="t-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span>
+        <span>Retail &amp; shops<small>Stores, boutiques, markets</small></span><span class="t-go" aria-hidden="true">&rsaquo;</span></a></li>
+    </ul>
+    <p class="t-foot"><a href="https://keenfalcon.ca">keenfalcon.ca</a></p>
+  </main>
+</body>
+</html>

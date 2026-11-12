@@ -1,2 +1,5 @@
 # Short client links: /p/tidewater shows the picker for clients/tidewater
 /p/*    /picker.html    200
+
+# Public demo for Keen Falcon site visitors
+/try    /try.html    200

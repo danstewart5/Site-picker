@@ -9,6 +9,7 @@ Plain HTML, CSS and JavaScript. No build step.
 ```
 index.html              Internal list of clients (not linked anywhere public)
 picker.html             The picker page clients use
+try.html                Public "Try it yourself" demo start page (/try)
 _redirects              Short links: /p/<client> opens the picker
 netlify.toml            Netlify settings (no build, publish the root folder)
 css/picker.css          Picker look (panel, buttons, screens)
@@ -48,6 +49,12 @@ To hide extras that don't fit a client, add `addonsHide: ["online-store", "blog"
 - The design helper is a small round chat button above the bar.
 
 On a computer the side panel shows everything, as before.
+
+## Public demo (/try)
+
+`/try` (`try.html`) is a public "Try it yourself" page for Keen Falcon website visitors: three big buttons (Trades & contractors, Health & wellness, Retail & shops) open the made-up sample businesses `tidewater`, `northshore` (Stepwell Foot Clinic) and `harbour-pine` with `?demo=1`.
+
+Demo mode (`?demo=1`): no design helper (no API cost), progress saved separately from real client links, the Send step becomes "Get your polished version" (name, business, phone, email, all but business required). Submissions go to the same **site-picks** form with `lead_type` = "Website demo lead" and `client` starting "Website demo lead". Normal client submissions have `lead_type` = "Client picks". Don't link real client pages from `/try`.
 
 ## Deploy on Netlify
 

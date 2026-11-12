@@ -312,7 +312,7 @@
   }
 
   function init() {
-    if (init.done || !window.KF_PICKER) return;
+    if (init.done || !window.KF_PICKER || window.KF_DEMO) return; /* no helper on the public demo */
     init.done = true;
     P = window.KF_PICKER; SET = P.settings || {}; SP = window.KF_SPEECH || { supported: false, ios: false };
     storeKey = "kf-guide:" + P.slug();

@@ -8,6 +8,13 @@
   var MOBILE = window.matchMedia("(max-width: 959px)");
   var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+  /* Public "Try it yourself" demo (/try opens a sample business with ?demo=1): no design helper,
+     and Send becomes a lead form ("Get your polished version"). */
+  var DEMO = false;
+  try { DEMO = new URLSearchParams(location.search).get("demo") === "1"; } catch (e) {}
+  window.KF_DEMO = DEMO;
+  var DEMO_TAG = "Website demo lead";
+
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
 
@@ -143,7 +150,7 @@
 
   function start(cfg) {
     C = cfg;
-    storeKey = "kf-picker:" + slug;
+    storeKey = (DEMO ? "kf-picker-demo:" : "kf-picker:") + slug;
     sections = window.KF_SECTIONS.map(function (s) { return { id: s.id, label: labelOf(s.id), hint: (C.sectionHints && C.sectionHints[s.id]) || s.hint }; });
     designs = C.designs.slice(0, LETTERS.length).map(function (d, i) { return Object.assign({}, d, { id: LETTERS[i] }); });
     palettes = Array.isArray(C.palettes) && C.palettes.length ? C.palettes : window.KF_PALETTES;
@@ -162,7 +169,8 @@
 
     document.title = "Design your website | " + C.businessName;
     $("#k-biz").textContent = C.businessName;
-    $("#f-business").placeholder = C.businessName;
+    $("#f-business").placeholder = DEMO ? "Your business name" : C.businessName;
+    if (DEMO) setupDemo();
     if (SET.studio) {
       $("#k-credit").innerHTML = "Design picker by " + (SET.site ? '<a href="' + esc(SET.site) + '" target="_blank" rel="noopener">' + esc(SET.studio) + "</a>" : esc(SET.studio));
     }
@@ -187,6 +195,20 @@
     if (!seen && S.view === "design") openWelcome();
     API.ready = true;
     emit("kf:ready");
+  }
+
+  /* Demo mode: lead form wording on the Send step. */
+  function setupDemo() {
+    document.body.classList.add("k-demo");
+    var v = $("#view-review");
+    $("h1", v).textContent = "Get your polished version";
+    $(".k-intro", v).textContent = "Want this for real? We'll build it for your business.";
+    $(".k-next", v).hidden = true;
+    var form = $("#k-send"); form.parentNode.insertBefore(form, $("#k-summary")); /* lead form first, picks summary below it */
+    form.style.marginBottom = "20px";
+    var ph = $("label[for=f-phone]"); ph.textContent = "Phone"; $("#f-phone").required = true;
+    $(".k-how", v).textContent = "We'll get in touch to talk about your own site. No obligation.";
+    $("#k-submit").textContent = "Get my polished version";
   }
 
   /* ---------- fonts ---------- */
@@ -583,7 +605,9 @@
   /* ---------- extras ---------- */
   function addonList() {
     var hide = C.addonsHide || [];
-    return (window.KF_ADDONS || []).filter(function (a) { return hide.indexOf(a.id) < 0; });
+    return (window.KF_ADDONS || []).filter(function (a) { return hide.indexOf(a.id) < 0; }).map(function (a) {
+      return DEMO && /\bAI\b/.test(a.name + " " + a.desc) ? Object.assign({}, a, { name: a.name.replace(/\bAI\s*/g, "").replace(/^./, function (c) { return c.toUpperCase(); }), desc: a.desc.replace(/\bAI\s*/g, "") }) : a;
+    });
   }
   function priceOf(id) { return window.KF_SHOW_PRICES === false ? null : ((window.KF_ADDON_PRICES || {})[id] || null); }
   function money(n) { return "$" + Number(n).toLocaleString("en-CA"); }
@@ -690,7 +714,7 @@
         (window.KF_BASE ? esc(window.KF_BASE.name) + ": " + money(window.KF_BASE.setup) + " + " + money(window.KF_BASE.monthly) + "/mo<br>" : "") +
         "<strong>" + esc(totalText()) + "</strong><br>" + esc(dueTodayText()) + '<br><span class="k-note">' + esc(window.KF_PRICE_NOTE || "") + "</span></p></section>" : "") +
       '<p style="margin:0 0 16px"><button type="button" class="k-btn small" id="k-reset">Start over</button></p>';
-    if (typeof S.form.business !== "string") S.form.business = C.businessName;
+    if (typeof S.form.business !== "string") S.form.business = DEMO ? "" : C.businessName;
     ["name", "business", "email", "phone", "notes"].forEach(function (k) { var f = $("#f-" + k); if (f && typeof S.form[k] === "string") f.value = S.form[k]; });
   }
 
@@ -704,7 +728,8 @@
     return {
       "form-name": "site-picks",
       "bot-field": ($('#k-send [name="bot-field"]').value || ""),
-      client: slug + " (" + C.businessName + ")",
+      client: DEMO ? DEMO_TAG + " (sample: " + C.businessName + ")" : slug + " (" + C.businessName + ")",
+      lead_type: DEMO ? DEMO_TAG : "Client picks",
       name: f("name"), business: f("business"), email: f("email"), phone: f("phone"), notes: f("notes"),
       sections: sectionsText(),
       style: "Colours: " + palette().name + "\nFonts: " + font().name,
@@ -714,7 +739,7 @@
       change_requests: requestList().length ? requestList().map(function (r) { return "[" + r.section + "] " + r.text; }).join("\n\n") : "None",
       addons: S.addons.length ? S.addons.map(function (id) { return addonName(id) + (priceText(id) ? " (" + priceText(id) + ")" : ""); }).join("\n") + "" : "None",
       price_estimate: totalText() ? totalText() + " | " + dueTodayText() : "",
-      picks_json: JSON.stringify({ client: slug, business: C.businessName, picks: picks, palette: S.palette, font: S.font, edits: edits, requests: S.requests, reactions: S.reactions, helperUsed: !!S.helperUsed, addons: S.addons, page: location.href, sentAt: new Date().toISOString() })
+      picks_json: JSON.stringify({ client: slug, demo: DEMO, business: C.businessName, picks: picks, palette: S.palette, font: S.font, edits: edits, requests: S.requests, reactions: S.reactions, helperUsed: !!S.helperUsed, addons: S.addons, page: location.href, sentAt: new Date().toISOString() })
     };
   }
 
@@ -731,6 +756,7 @@
     $$("#k-send [aria-invalid]").forEach(function (n) { n.removeAttribute("aria-invalid"); });
     if (!$("#f-name").value.trim()) return invalid("f-name", "Please add your name.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($("#f-email").value.trim())) return invalid("f-email", "Please add a valid email so we can reply.");
+    if (DEMO && $("#f-phone").value.replace(/\D/g, "").length < 7) return invalid("f-phone", "Please add a phone number so we can reach you.");
     var data = payload(), btn = $("#k-submit");
     btn.disabled = true; btn.textContent = "Sending…";
     fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(data).toString() })
@@ -739,17 +765,18 @@
         S.sent = true;
         var first = data.name.split(" ")[0];
         $("#k-done-title").textContent = "Thanks, " + first + "! Your picks are in.";
-        $("#k-done-text").innerHTML = esc(SET.owner || "We") + " will take your picks and notes, customize the site for your business, and send you back a polished version. " + (contactLine() ? "Questions in the meantime? " + contactLine() : "");
+        if (DEMO) $("#k-done-text").innerHTML = esc(SET.owner || "We") + " will be in touch soon to talk about building the real thing for your business. " + (contactLine() ? "Can't wait? " + contactLine() : "");
+        else $("#k-done-text").innerHTML = esc(SET.owner || "We") + " will take your picks and notes, customize the site for your business, and send you back a polished version. " + (contactLine() ? "Questions in the meantime? " + contactLine() : "");
         show("done");
       })
       .catch(function () {
         var body = "Picks for " + C.businessName + "\n\n" + data.sections + "\n\n" + data.style + "\n\nExtras:\n" + data.addons + "\n\nText changes:\n" + data.text_changes + "\n\nOther changes:\n" + data.change_requests + "\n\nWhat I liked:\n" + data.reactions +
           "\n\nName: " + data.name + "\nEmail: " + data.email + "\nPhone: " + data.phone + "\nNotes: " + data.notes;
-        var mail = SET.email ? ' or <a href="mailto:' + esc(SET.email) + "?subject=" + encodeURIComponent("Website picks - " + C.businessName) + "&body=" + encodeURIComponent(body.slice(0, 1800)) + '">email your picks instead</a>' : "";
+        var mail = SET.email ? ' or <a href="mailto:' + esc(SET.email) + "?subject=" + encodeURIComponent((DEMO ? DEMO_TAG : "Website picks") + " - " + C.businessName) + "&body=" + encodeURIComponent(body.slice(0, 1800)) + '">email your picks instead</a>' : "";
         box.innerHTML = "Sorry, that didn't send. Please check your connection and try again" + mail + ".";
         box.hidden = false;
       })
-      .then(function () { btn.disabled = false; btn.textContent = "Send my picks"; save(); });
+      .then(function () { btn.disabled = false; btn.textContent = DEMO ? "Get my polished version" : "Send my picks"; save(); });
   }
 
   /* ---------- views ---------- */

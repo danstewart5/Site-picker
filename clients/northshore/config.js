@@ -1,12 +1,12 @@
 /* Demo client: fictional orthotics clinic. Copy clients/_template to start a real one. */
 window.KF_CLIENT = {
-  businessName: "Northshore Orthotics & Foot Care",
+  businessName: "Stepwell Foot Clinic",
   industry: "medical",
   contact: {
     phone: "250-555-0187",
-    email: "care@northshorefoot.example",
+    email: "care@stepwellfoot.example",
     area: "Nanaimo & central Vancouver Island",
-    address: "210 Harbourview Rd, Nanaimo, BC"
+    address: "123 Sample Street, Nanaimo, BC"
   },
   navLabels: { gallery: "Clinic" },
   sectionLabels: { services: "Treatments", gallery: "Our clinic" },
@@ -73,13 +73,13 @@ window.KF_CLIENT = {
     about: {
       eyebrow: "About the clinic",
       title: "Island care, made in-house",
-      body: "Northshore is a locally owned clinic. Our clinicians assess, cast and fit every pair, and our lab builds them right here in Nanaimo.",
+      body: "Stepwell is a locally owned clinic. Our clinicians assess, cast and fit every pair, and our lab builds them right here in Nanaimo.",
       body2: "That means faster turnaround and free adjustments for the life of your orthotics.",
       image: "ph:portrait:Our clinician",
       points: ["Certified orthotic clinicians", "Made in our Nanaimo lab", "Free adjustments", "Direct billing to most plans"],
       stats: [{ num: "15", label: "Years in Nanaimo" }, { num: "8k+", label: "Patients" }, { num: "1 wk", label: "Turnaround" }, { num: "4.9", label: "Google stars" }],
       quote: "Most foot pain can be fixed. You shouldn't have to put up with it.",
-      owner: { name: "Dana Whitfield, C.Ped", role: "Clinic owner & pedorthist", image: "ph:portrait:Dana Whitfield" }
+      owner: { name: "Dana, C.Ped", role: "Clinic owner & pedorthist", image: "ph:portrait:Dana" }
     },
     reviews: {
       eyebrow: "Patient stories",
@@ -105,7 +105,7 @@ window.KF_CLIENT = {
       blurb: "Custom orthotics, assessments and compression therapy in Nanaimo, BC.",
       links: ["Treatments", "Our clinic", "Referrals", "Billing", "Contact"],
       social: ["Facebook", "Instagram"],
-      legal: "© Northshore Orthotics & Foot Care. Information on this site is not a substitute for medical advice.",
+      legal: "© Stepwell Foot Clinic. Information on this site is not a substitute for medical advice.",
       ctaLine: "Ready to feel better on your feet?"
     }
   },

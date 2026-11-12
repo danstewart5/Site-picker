@@ -78,7 +78,7 @@ window.KF_CLIENT = {
       points: ["Written, fixed-price quotes", "Daily site clean-up", "Permits handled for you", "2-year workmanship warranty"],
       stats: [{ num: "18", label: "Years in business" }, { num: "400+", label: "Projects" }, { num: "12", label: "Crew members" }, { num: "4.9", label: "Google stars" }],
       quote: "We treat every house like it's our own mother's.",
-      owner: { name: "Mark Delaney", role: "Owner & project lead", image: "ph:portrait:Mark Delaney" }
+      owner: { name: "Mark", role: "Owner & project lead", image: "ph:portrait:Mark" }
     },
     reviews: {
       eyebrow: "Reviews",

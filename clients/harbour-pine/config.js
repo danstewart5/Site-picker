@@ -6,7 +6,7 @@ window.KF_CLIENT = {
     phone: "250-555-0119",
     email: "shop@harbourandpine.example",
     area: "Downtown Parksville",
-    address: "88 Beachside Ave, Parksville, BC"
+    address: "456 Sample Street, Parksville, BC"
   },
   navLabels: { services: "Shop", gallery: "In store" },
   sectionLabels: { services: "Shop / featured products", gallery: "In the shop" },
@@ -83,7 +83,7 @@ window.KF_CLIENT = {
       points: ["60+ Island makers", "Free gift wrapping", "Local pickup & delivery", "New arrivals every week"],
       stats: [{ num: "60+", label: "Local makers" }, { num: "2016", label: "Opened" }, { num: "2,000+", label: "Products" }, { num: "4.8", label: "Google stars" }],
       quote: "I wanted a shop where every gift has a story and a face behind it.",
-      owner: { name: "Ellie Marchand", role: "Owner & buyer", image: "ph:portrait:Ellie Marchand" }
+      owner: { name: "Ellie", role: "Owner & buyer", image: "ph:portrait:Ellie" }
     },
     reviews: {
       eyebrow: "Kind words",
@@ -100,7 +100,7 @@ window.KF_CLIENT = {
     contact: {
       eyebrow: "Visit",
       title: "Come say hello",
-      body: "Find us on Beachside Avenue, steps from the beach. Street parking out front.",
+      body: "Find us downtown, steps from the beach. Street parking out front.",
       cta: "Get directions",
       formTitle: "Ask about a product",
       hours: [{ days: "Mon to Sat", time: "10am to 5:30pm" }, { days: "Sunday", time: "11am to 4pm" }]
@@ -120,7 +120,7 @@ window.KF_CLIENT = {
       content: {
         hero: { eyebrow: "Parksville, BC", headline: "Made here. Loved everywhere.", cta: "Shop now", cta2: "Plan a visit", image: "ph:room:Shop interior" },
         services: { eyebrow: "Featured", title: "This month's favourites" },
-        contact: { title: "Drop by the shop.", body: "Open seven days on Beachside Avenue.", cta: "Call the shop" }
+        contact: { title: "Drop by the shop.", body: "Open seven days, downtown.", cta: "Call the shop" }
       } },
     { name: "Market", blurb: "Editorial, maker-focused",
       content: {
