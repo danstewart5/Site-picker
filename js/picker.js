@@ -341,13 +341,18 @@
     return parts.join(" + ") + (p.unit ? " " + p.unit : "");
   }
   function totals() {
-    var t = { setup: 0, monthly: 0, priced: false };
+    var b = window.KF_SHOW_PRICES === false ? null : window.KF_BASE;
+    var t = { setup: b ? b.setup || 0 : 0, monthly: b ? b.monthly || 0 : 0, priced: !!b };
     S.addons.forEach(function (id) { var p = priceOf(id); if (p) { t.priced = true; t.setup += p.setup || 0; t.monthly += p.monthly || 0; } });
     return t;
   }
   function totalText() {
     var t = totals(); if (!t.priced) return "";
-    return money(t.setup) + (t.monthly ? " + " + money(t.monthly) + "/mo" : "");
+    return money(t.setup) + " to start" + (t.monthly ? ", then " + money(t.monthly) + "/mo" : "");
+  }
+  function dueTodayText() {
+    var t = totals(); if (!t.priced) return "";
+    return money(t.setup + t.monthly) + " today (start + first month)";
   }
   function fits(a) { return C.industry && Array.isArray(a.for) && a.for.indexOf(C.industry) > -1; }
 
@@ -374,7 +379,7 @@
     S.addons = S.addons.filter(function (id) { return valid.indexOf(id) > -1; });
     var n = S.addons.length;
     var tt = totalText();
-    $("#k-addon-count").textContent = n + (n === 1 ? " extra" : " extras") + " picked" + (tt ? " · approx. " + tt : "");
+    $("#k-addon-count").textContent = n + (n === 1 ? " extra" : " extras") + " picked" + (tt ? " · " + tt : "");
   }
 
   /* ---------- review ---------- */
@@ -413,8 +418,11 @@
                    : '<p class="none">No changes. Use “Edit text” on the design step to change any wording.</p>') + "</section>" +
       '<section class="k-summary"><h2>Extras <button type="button" class="k-btn small" data-go="addons">Change</button></h2>' +
         (S.addons.length ? "<ul>" + S.addons.map(function (id) { return "<li>" + esc(addonName(id)) + (priceText(id) ? ' <span class="k-addon-price inline">' + esc(priceText(id)) + "</span>" : "") + "</li>"; }).join("") + "</ul>" +
-          (totalText() ? '<p class="k-total"><strong>Estimated extras: ' + esc(totalText()) + '</strong><br><span class="k-note">' + esc(window.KF_PRICE_NOTE || "") + "</span></p>" : "")
+          ""
           : '<p class="none">None picked.</p>') + "</section>" +
+      (totalText() ? '<section class="k-summary"><h2>Your price</h2><p class="k-total">' +
+        (window.KF_BASE ? esc(window.KF_BASE.name) + ": " + money(window.KF_BASE.setup) + " + " + money(window.KF_BASE.monthly) + "/mo<br>" : "") +
+        "<strong>" + esc(totalText()) + "</strong><br>" + esc(dueTodayText()) + '<br><span class="k-note">' + esc(window.KF_PRICE_NOTE || "") + "</span></p></section>" : "") +
       '<p style="margin:0 0 16px"><button type="button" class="k-btn small" id="k-reset">Start over</button></p>';
     if (typeof S.form.business !== "string") S.form.business = C.businessName;
     ["name", "business", "email", "phone", "notes"].forEach(function (k) { var f = $("#f-" + k); if (f && typeof S.form[k] === "string") f.value = S.form[k]; });
@@ -435,7 +443,8 @@
       sections: sectionsText(),
       style: "Colours: " + palette().name + "\nFonts: " + font().name,
       text_changes: tc.length ? tc.map(function (t) { return "[" + t.section + " / " + t.key + "]\nWas: " + t.was + "\nNow: " + t.text; }).join("\n\n") : "None",
-      addons: S.addons.length ? S.addons.map(function (id) { return addonName(id) + (priceText(id) ? " (" + priceText(id) + ")" : ""); }).join("\n") + (totalText() ? "\nEstimated extras total: " + totalText() : "") : "None",
+      addons: S.addons.length ? S.addons.map(function (id) { return addonName(id) + (priceText(id) ? " (" + priceText(id) + ")" : ""); }).join("\n") + "" : "None",
+      price_estimate: totalText() ? totalText() + " | " + dueTodayText() : "",
       picks_json: JSON.stringify({ client: slug, business: C.businessName, picks: picks, palette: S.palette, font: S.font, edits: edits, addons: S.addons, page: location.href, sentAt: new Date().toISOString() })
     };
   }

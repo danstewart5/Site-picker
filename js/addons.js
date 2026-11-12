@@ -101,8 +101,8 @@ window.KF_ADDONS = [
     name: "Multi-language",
     desc: "Offer your site in more than one language." },
   { id: "care-plan", group: "Look after your site", popular: true,
-    name: "Monthly care plan",
-    desc: "Updates, backups and small edits handled for you every month." }
+    name: "Priority care upgrade",
+    desc: "Unlimited edits, same-day changes and a monthly visitor report." }
 ];
 
 /*
@@ -118,6 +118,9 @@ window.KF_ADDONS = [
 */
 window.KF_SHOW_PRICES = true;
 window.KF_PRICE_NOTE = "Estimates in CAD, before GST. Your final price is confirmed in your quote.";
+/* Base package every client gets: website build + monthly care (hosting, security, small updates). */
+window.KF_BASE = { setup: 99, monthly: 29, name: "Your website + monthly care",
+  desc: "Your custom site, hosting, security, backups and small updates." };
 window.KF_ADDON_PRICES = {
   "lead-form":          { setup: 150 },
   "click-to-call":      { setup: 50 },
@@ -142,5 +145,5 @@ window.KF_ADDON_PRICES = {
   "analytics":          { setup: 200, monthly: 15 },
   "accessibility":      { setup: 150 },
   "multi-language":     { setup: 500, unit: "per language" },
-  "care-plan":          { setup: 0, monthly: 99 }
+  "care-plan":          { setup: 0, monthly: 30 }
 };
