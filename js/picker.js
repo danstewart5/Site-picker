@@ -612,10 +612,16 @@
   function show(view, initial) {
     ["design", "addons", "review", "done"].forEach(function (v) { $("#view-" + v).hidden = v !== view; });
     S.view = view;
+    var order = ["design", "addons", "review"], cur = view === "done" ? 3 : order.indexOf(view);
     $$(".k-steps button").forEach(function (b) {
-      var v = b.getAttribute("data-view");
-      if (v === view || (view === "done" && v === "review")) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+      var v = b.getAttribute("data-view"), i = order.indexOf(v), n = b.querySelector(".n");
+      if (v === view) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+      b.classList.toggle("done", i < cur);
+      if (n) n.textContent = i < cur ? "\u2713" : String(i + 1);
     });
+    var where = $("#k-where");
+    if (where) where.textContent = view === "done" ? "All done: your picks are in" :
+      "Step " + (cur + 1) + " of 3: " + ["pick your design", "choose extras", "review & send"][cur];
     if (view !== "design" && editing) setEditing(false);
     document.body.setAttribute("data-view", view);
     if (view === "review") renderSummary();

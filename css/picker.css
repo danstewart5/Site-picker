@@ -40,8 +40,17 @@ button { cursor: pointer; }
 .k-steps button .n { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--k-bg); font-size: .8rem; }
 .k-steps button[aria-current="step"] { color: var(--k-ink); }
 .k-steps button[aria-current="step"] .n { background: var(--k-brand); color: #fff; }
-.k-steps .lbl { display: none; }
-@media (min-width: 700px) { .k-steps .lbl { display: inline; } .k-top { padding: 0 18px; } }
+.k-steps button.done .n { background: var(--k-ok, #15803d); color: #fff; }
+/* Phones: tiny label under each number so the steps explain themselves. */
+.k-steps button { flex-direction: column; justify-content: center; gap: 1px; padding: 0 4px; min-width: 46px; }
+.k-steps .lbl { font-size: .64rem; line-height: 1.1; font-weight: 650; }
+.k-steps button .n { width: 22px; height: 22px; }
+@media (min-width: 700px) {
+  .k-steps button { flex-direction: row; gap: 6px; padding: 0 10px; }
+  .k-steps .lbl { font-size: .88rem; }
+  .k-steps button .n { width: 24px; height: 24px; }
+  .k-top { padding: 0 18px; }
+}
 
 /* ---------- design view layout ---------- */
 .k-design { display: block; }
