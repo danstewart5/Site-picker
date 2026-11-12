@@ -55,11 +55,12 @@
     if (step.type === "palette") return { t: where + "pick a colour theme. Tap each one and watch the preview change.", q: [CHIPS.next, CHIPS.what] };
     if (step.type === "font") return { t: where + "pick a lettering style. Tap each one to see it on your headings.", q: [CHIPS.next, CHIPS.what] };
     return {
-      t: where + "the " + step.label + " section. Tap A, B or C to see each look, then pick your favourite. To change the words, tap Edit text and type right on the page, or write anything else in the box under the options.",
+      t: where + "the " + step.label + " section. Tap " + orList(s.options || ["A", "B", "C"]) + " to see each look, then pick your favourite. To change the words, tap Edit text and type right on the page, or write anything else in the box under the options.",
       q: [CHIPS.next].concat(baseChips().slice(1, 2)),
       ask: step.id
     };
   }
+  function orList(a) { return a.length > 1 ? a.slice(0, -1).join(", ") + " or " + a[a.length - 1] : (a[0] || ""); }
   function askLine(sec, v) {
     return { t: "What do you think of Option " + v + " for " + P.sectionLabel(sec) + "? Tap any that fit.", q: reactChips(sec, v).concat([CHIPS.next, CHIPS.what]) };
   }

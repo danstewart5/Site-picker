@@ -35,7 +35,7 @@ window.KF_FONTS = [
     id: "friendly", name: "Warm & friendly",
     head: "'Fraunces', Georgia, serif",
     body: "'Nunito', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif",
-    weight: 700, google: ["Fraunces:opsz,wght@9..144,600;9..144,700", "Nunito:wght@400;600;700"]
+    weight: 700, google: ["Fraunces:opsz,wght@9..144,400..900", "Nunito:wght@400;600;700"]
   }
 ];
 

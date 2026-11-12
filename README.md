@@ -1,6 +1,6 @@
 # Site picker (Keen Falcon)
 
-Send a prospect one link. They see sample designs for their website split into sections, mix and match (A / B / C per section), pick colours and fonts, change wording, tick extras, and send their picks to you.
+Send a prospect one link. They see sample designs for their website split into sections, mix and match (A / B / C, and D when there is a fourth, per section), pick colours and fonts, change wording, tick extras, and send their picks to you.
 
 Plain HTML, CSS and JavaScript. No build step.
 
@@ -16,7 +16,7 @@ css/sections.css        Sample website look (all section layouts)
 js/settings.js          Your name, email, phone, website (shown to clients)
 js/defaults.js          Section list, font pairings, fallback colour themes
 js/addons.js            The "Extras" checklist: edit this to add/remove extras
-js/sections.js          The three layouts (A, B, C) for each section
+js/sections.js          The layouts (A, B, C, and optional D) for each section
 js/picker.js            How the picker works
 js/guide.js             The "Need help?" design helper chat
 js/speech.js            Talk-instead-of-type mic buttons
@@ -34,7 +34,7 @@ clients/_template/      Copy this to start a new client
 5. Send the client: `https://YOUR-SITE/p/<name>`
    (the long form `https://YOUR-SITE/picker.html?client=<name>` also works).
 
-Each design uses its own layout: design 1 = layout A, design 2 = B, design 3 = C. Any section's wording can be changed per design inside `designs: [...]`. The three demo clients (`tidewater`, `northshore`, `harbour-pine`) are good examples to copy from, and `smith-orthotics` is a real client set up the same way.
+Each design uses its own layout: design 1 = layout A, design 2 = B, design 3 = C. A fourth design is optional: design 4 = layout D ("The Original", a playful hand-drawn style with chunky outlines; see `oddity-lane`, whose Option D is the original Oddity Lane sample site). Layout D reads extra wording fields, so copy its `content` block from `clients/oddity-lane/config.js` as a starting point. Colour themes can add optional `hot`, `cool` and `soft` colours that layout D uses. Any section's wording can be changed per design inside `designs: [...]`. The three demo clients (`tidewater`, `northshore`, `harbour-pine`) are good examples to copy from, and `smith-orthotics` is a real client set up the same way.
 
 To hide extras that don't fit a client, add `addonsHide: ["online-store", "blog"]` to their config. Extras that suit the client's industry get a "Great for ..." badge automatically.
 

@@ -4,7 +4,7 @@
 
   var U = window.KF_UTIL, esc = U.esc;
   var SET = window.KF_SETTINGS || {};
-  var LETTERS = ["A", "B", "C"];
+  var LETTERS = ["A", "B", "C", "D"]; /* most clients have three designs; a fourth (D) is optional */
   var MOBILE = window.matchMedia("(max-width: 959px)");
   var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -124,7 +124,7 @@
     C = cfg;
     storeKey = "kf-picker:" + slug;
     sections = window.KF_SECTIONS.map(function (s) { return { id: s.id, label: labelOf(s.id), hint: (C.sectionHints && C.sectionHints[s.id]) || s.hint }; });
-    designs = C.designs.slice(0, 3).map(function (d, i) { return Object.assign({}, d, { id: LETTERS[i] }); });
+    designs = C.designs.slice(0, LETTERS.length).map(function (d, i) { return Object.assign({}, d, { id: LETTERS[i] }); });
     palettes = Array.isArray(C.palettes) && C.palettes.length ? C.palettes : window.KF_PALETTES;
     fonts = Array.isArray(C.fonts) && C.fonts.length
       ? C.fonts.map(function (f) { return typeof f === "string" ? window.KF_FONTS.filter(function (x) { return x.id === f; })[0] : f; }).filter(Boolean)
@@ -174,8 +174,9 @@
   function applyStyle() {
     var p = palette(), f = font(), st = $("#site").style;
     var map = { bg: "--c-bg", surface: "--c-surface", text: "--c-text", muted: "--c-muted", primary: "--c-primary", onPrimary: "--c-on-primary",
-      accent: "--c-accent", onAccent: "--c-on-accent", dark: "--c-dark", onDark: "--c-on-dark" };
-    Object.keys(map).forEach(function (k) { if (p[k]) st.setProperty(map[k], p[k]); });
+      accent: "--c-accent", onAccent: "--c-on-accent", dark: "--c-dark", onDark: "--c-on-dark",
+      hot: "--c-hot", cool: "--c-cool", soft: "--c-soft" }; /* last three are optional extras some themes add */
+    Object.keys(map).forEach(function (k) { if (p[k]) st.setProperty(map[k], p[k]); else st.removeProperty(map[k]); });
     st.setProperty("--f-head", f.head);
     st.setProperty("--f-body", f.body);
     st.setProperty("--head-w", String(f.weight || 700));
@@ -756,7 +757,8 @@
       var st = steps[S.step] || {};
       return { view: S.view, step: { type: st.type, id: st.id, label: st.label, hint: st.hint, index: S.step, total: steps.length },
         shown: st.type === "section" ? shown(st.id) : null, picked: st.type === "section" ? (S.picks[st.id] || null) : null,
-        designName: st.type === "section" ? (design(shown(st.id)).name || "") : "" };
+        designName: st.type === "section" ? (design(shown(st.id)).name || "") : "",
+        options: designs.map(function (d) { return d.id; }) };
     },
     slug: function () { return slug; },
     context: function () {

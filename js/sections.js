@@ -1,5 +1,6 @@
 /*
-  Section layouts. Each section has three genuinely different layouts: A, B and C.
+  Section layouts. Each section has genuinely different layouts: A, B and C, plus an optional D
+  ("The Original": a playful hand-drawn style, built from the Oddity Lane sample site).
   Every renderer receives (c, ctx):
     c   = the merged content for that section (client defaults + design overrides)
     ctx = { biz, contact, labels }
@@ -300,6 +301,142 @@
         '<div class="foot-c-row">' + T("p", "blurb", c.blurb) + '<ul class="inline">' + list(c.links).map(function (l, i) { return "<li>" + T("span", "links." + i, l) + "</li>"; }).join("") + "</ul></div>" +
         T("p", "legal", c.legal, "fine") + "</div></div>";
     }
+  };
+
+  /* ================= D: The Original (playful, hand-drawn, chunky outlines) =================
+     Each D renderer reads its own wording from the design's content, so it can be reused. */
+  function googlies() {
+    return '<span class="d-googlies" aria-hidden="true"><span class="d-googly"><span></span></span><span class="d-googly"><span></span></span></span>';
+  }
+  function dHead(c, keyT, keyI, title, intro) {
+    return '<div class="d-head">' + T("h2", keyT, title) + T("p", keyI, intro) + "</div>";
+  }
+
+  R.hero.D = function (c, ctx) {
+    var nav = list(c.nav).length ? c.nav : [ctx.labels.services, ctx.labels.gallery, ctx.labels.about, ctx.labels.contact];
+    var nx = c.next || {}, mini = c.mini || {};
+    return '<header class="d-bar"><div class="wrap">' +
+        '<span class="d-brand">' + (c.mark ? '<img class="d-mark" src="' + esc(c.mark) + '" alt="">' : "") +
+          "<span>" + T("span", "brand", c.brand || ctx.biz) + T("small", "brandSub", c.brandSub) + "</span></span>" +
+        '<span class="d-nav" aria-hidden="true">' + nav.map(function (n) { return "<span>" + esc(n) + "</span>"; }).join("") +
+          T("span", "navCta", c.navCta, "d-btn d-btn-sm") + "</span>" +
+        '<span class="d-btn d-btn-sm d-ghost d-menu" aria-hidden="true">Menu</span>' +
+      "</div></header>" +
+      '<div class="d-hero"><div class="wrap">' +
+        '<div class="d-eye">' + media(c.image, "The all-seeing eye of The House of Oddities") + T("p", "hint", c.hint, "d-eye-hint") + "</div>" +
+        '<div class="d-hero-text">' + T("p", "eyebrow", c.eyebrow, "d-pre") + T("h1", "headline", c.headline) + T("p", "sub", c.sub, "d-lede") +
+          '<div class="d-btns">' + T("span", "cta", c.cta, "d-btn") + T("span", "cta2", c.cta2, "d-btn d-ghost") + "</div>" +
+          T("p", "address", c.address, "d-address") + "</div>" +
+      "</div></div>" +
+      (list(c.paths).length ? '<div class="d-paths"><div class="wrap"><div class="d-path-grid">' + list(c.paths).map(function (p, i) {
+        var k = "paths." + i + ".";
+        return '<article class="d-path d-path-' + (i % 2 ? "vend" : "shop") + '">' + googlies() + T("h2", k + "title", p.title) + T("p", k + "body", p.body) +
+          "<ul>" + list(p.points).map(function (pt, j) { return T("li", k + "points." + j, pt); }).join("") + "</ul>" +
+          '<div class="d-btns">' + T("span", k + "cta", p.cta, "d-btn") + T("span", k + "cta2", p.cta2, "d-btn d-ghost") + "</div></article>";
+      }).join("") + "</div>" +
+      (mini.title ? '<div class="d-mini">' + (mini.image ? '<img src="' + esc(mini.image) + '" alt="">' : "") +
+        "<span>" + T("b", "mini.title", mini.title) + T("small", "mini.sub", mini.sub) + '</span><span class="d-arr" aria-hidden="true">&rarr;</span></div>' : "") +
+      "</div></div>" : "") +
+      (nx.title ? '<div class="d-next"><div class="wrap"><div>' + T("span", "next.kicker", nx.kicker, "d-next-k") + T("p", "next.title", nx.title, "d-next-t") +
+        T("p", "next.body", nx.body, "d-next-b") + "</div>" + T("span", "next.cta", nx.cta, "d-btn d-btn-sm d-butter") + "</div></div>" : "");
+  };
+
+  R.services.D = function (c) {
+    var w = c.workshop || {};
+    return '<div class="wrap">' + dHead(c, "title", "intro", c.title, c.intro) +
+      '<div class="d-flyers">' + list(c.items).map(function (it, i) {
+        var k = "items." + i + ".";
+        return '<article class="d-flyer d-t-' + esc(it.theme || "plain") + '">' +
+          (it.theme === "mystic" ? '<span class="d-stars" aria-hidden="true"><i style="left:12%;top:10%">&#10022;</i><i style="right:14%;top:16%">&#9790;</i><i style="left:16%;bottom:16%">&#10023;</i><i style="right:12%;bottom:12%">&#10022;</i></span>' : "") +
+          T("p", k + "presents", it.presents, "d-presents") +
+          (it.theme === "micro" ? '<span class="d-lens" aria-hidden="true"><span>tiny things</span></span>' : "") +
+          '<p class="d-ftitle">' + T("span", k + "kicker", it.kicker, "d-fk") + T("span", k + "name", it.name, "d-fn") + T("span", k + "suffix", it.suffix, "d-fs") + "</p>" +
+          T("p", k + "stamp", it.stamp, "d-stamp") + T("p", k + "date", it.date, "d-fdate") + T("p", k + "tag", it.tag, "d-ftag") +
+          T("span", k + "flip", it.flip || "Flip for details", "d-btn d-btn-sm") + "</article>";
+      }).join("") + "</div>" +
+      (list(c.past).length ? '<p class="d-past">' + T("span", "pastLabel", c.pastLabel || "Past markets:") + list(c.past).map(function (p, i) { return T("span", "past." + i, p, "d-badge"); }).join("") + "</p>" : "") +
+      (w.name ? '<div class="d-workshop"><div>' + T("p", "workshop.note", w.note, "d-note") + T("h3", "workshop.name", w.name) + T("p", "workshop.desc", w.desc) +
+        '<ul class="d-perks">' + list(w.includes).map(function (x, i) { return T("li", "workshop.includes." + i, x); }).join("") + "</ul>" +
+        T("p", "workshop.fine", w.fine, "d-fine") + "</div>" +
+        "<div>" + T("p", "workshop.pick", w.pick || "1. Pick a time", "d-steps-label") +
+        '<div class="d-slots">' + list(w.slots).map(function (sl, i) {
+          return '<span class="d-slot' + (i === 1 ? " on" : "") + '">' + T("b", "workshop.slots." + i, sl) + '<span class="d-seats" aria-hidden="true">' +
+            [0, 1, 2, 3, 4, 5].map(function (n) { return "<i" + (n < (i * 2 + 1) % 6 ? ' class="taken"' : "") + "></i>"; }).join("") + "</span></span>";
+        }).join("") + "</div>" + T("span", "workshop.cta", w.cta, "d-btn") + "</div></div>" : "") +
+      "</div>";
+  };
+
+  R.gallery.D = function (c) {
+    var h = c.house || {};
+    return '<div class="wrap">' + dHead(c, "title", "intro", c.title, c.intro) +
+      (list(c.steps).length ? '<ol class="d-how">' + list(c.steps).map(function (st, i) { return '<li><span class="d-how-n" aria-hidden="true">' + (i + 1) + "</span>" + T("span", "steps." + i, st) + "</li>"; }).join("") + "</ol>" : "") +
+      '<div class="d-house"><div class="d-house-head"><div>' + T("p", "house.note", h.note, "d-note") + T("h3", "house.name", h.name) + "</div>" +
+        T("p", "house.blurb", h.blurb) + T("span", "house.badge", h.badge, "d-sample") + "</div>" +
+        '<div class="d-items">' + list(c.items).map(function (it, i) {
+          return '<figure class="d-item' + (it.sold ? " sold" : "") + '"><div class="d-item-art">' + media(it.image, it.caption) +
+            (it.sold ? '<span class="d-found" aria-hidden="true"><span class="d-found-eyes"><span class="d-googly"><span></span></span><span class="d-googly"><span></span></span></span>Found a home</span>' : "") + "</div>" +
+            '<figcaption>' + T("span", "items." + i + ".caption", it.caption, "d-item-name") + T("span", "items." + i + ".kind", it.kind, "d-item-kind") +
+            '<span class="d-btn d-btn-sm d-hold' + (it.sold ? " off" : "") + '">' + esc(it.sold ? "Found a home" : (c.holdLabel || "Hold for me")) + "</span></figcaption></figure>";
+        }).join("") + "</div></div>" +
+      (c.cta ? '<div class="d-center">' + T("span", "cta", c.cta, "d-btn d-butter") + "</div>" : "") +
+      "</div>";
+  };
+
+  R.about.D = function (c) {
+    return '<div class="wrap">' + dHead(c, "title", "body", c.title, c.body) +
+      '<div class="d-why">' + list(c.why).map(function (x, i) { return "<div>" + T("b", "why." + i + ".name", x.name) + T("p", "why." + i + ".desc", x.desc) + "</div>"; }).join("") + "</div>" +
+      (list(c.points).length ? '<div class="d-panel"><h3>' + esc(c.stepsTitle || "How to vend") + '</h3><ol class="d-how d-how-v">' + list(c.points).map(function (p, i) {
+        return '<li><span class="d-how-n" aria-hidden="true">' + (i + 1) + "</span>" + T("span", "points." + i, p) + "</li>";
+      }).join("") + "</ol>" + T("span", "cta", c.cta, "d-btn") + "</div>" : "") +
+      (list(c.partners).length ? '<div class="d-partners">' + list(c.partners).map(function (p, i) {
+        return "<div>" + T("h3", "partners." + i + ".name", p.name) + T("p", "partners." + i + ".desc", p.desc) + T("span", "partners." + i + ".cta", p.cta, "d-btn d-btn-sm") + "</div>";
+      }).join("") + "</div>" : "") + "</div>";
+  };
+
+  R.reviews.D = function (c) {
+    var t = c.tarot || {}, cards = list(t.cards), r = t.reading || {};
+    var bags = "";
+    for (var b = 1; b <= 33; b++) bags += '<i class="d-bag' + (b === 7 ? " lit" : "") + '"></i>';
+    return '<div class="wrap">' + dHead(c, "title", "intro", c.title, c.intro) +
+      '<div class="d-fun">' + list(c.items).map(function (it, i) {
+        var k = "items." + i + ".";
+        if (i === 0) return '<div class="d-tile d-bags">' + T("h3", k + "name", it.name) + T("p", k + "quote", it.quote) +
+          '<div class="d-bag-grid" aria-hidden="true">' + bags + "</div>" + T("span", "bagsCta", c.bagsCta, "d-btn d-butter") +
+          T("p", "bagsAnswer", c.bagsAnswer, "d-bag-answer") + T("p", "bagsFine", c.bagsFine, "d-fine") + "</div>";
+        return '<div class="d-tile">' + T("h3", k + "name", it.name) + T("p", k + "quote", it.quote) + "</div>";
+      }).join("") + "</div></div>" +
+      (t.title ? '<div class="d-tarot"><div class="wrap">' + dHead(c, "tarot.title", "tarot.intro", t.title, t.intro) +
+        '<div class="d-deck">' + cards.slice(0, 3).map(function (cd, i) {
+          var open = i === (t.open == null ? 1 : t.open);
+          return '<span class="d-card' + (open ? " open" : " dim") + '">' + (open
+            ? T("span", "tarot.cards." + i + ".num", cd.num, "d-cnum") + '<span class="d-glyph" aria-hidden="true">' + esc(cd.glyph || "✦") + "</span>" + T("span", "tarot.cards." + i + ".name", cd.name, "d-cname")
+            : (t.back ? '<img src="' + esc(t.back) + '" alt="">' : "")) + "</span>";
+        }).join("") + "</div>" +
+        (r.fortune ? '<div class="d-reading">' + T("h3", "tarot.reading.name", r.name) + T("p", "tarot.reading.fortune", r.fortune, "d-fortune") +
+          "<dl><dt>Go to</dt>" + T("dd", "tarot.reading.go", r.go) + "<dt>Look for</dt>" + T("dd", "tarot.reading.look", r.look) + "</dl>" +
+          '<div class="d-btns">' + T("span", "tarot.reading.cta", r.cta, "d-btn d-btn-sm") + '<span class="d-btn d-btn-sm d-ghost">Shuffle again</span></div></div>' : "") +
+        T("p", "tarot.hint", t.hint, "d-tarot-hint") + "</div></div>" : "");
+  };
+
+  R.contact.D = function (c, ctx) {
+    var k = ctx.contact || {};
+    return '<div class="wrap d-visit"><div class="d-map">' + media(c.map, "Hand-drawn map, not to scale, showing the shop on Oddity Lane") + "</div>" +
+      "<div>" + T("h2", "title", c.title) + T("p", "body", c.body, "d-lede") +
+      "<dl>" +
+        "<dt>Address</dt><dd>" + esc(k.address || "Coming soon") + "</dd>" +
+        list(c.hours).map(function (h, i) { return "<dt>" + (i ? "" : "Hours") + "</dt>" + T("dd", "hours." + i + ".time", h.days + ": " + h.time); }).join("") +
+        "<dt>Email</dt><dd>" + esc(k.email || "Coming soon") + "</dd>" +
+        "<dt>Phone</dt><dd>" + esc(k.phone || "Coming soon") + "</dd>" +
+      "</dl>" +
+      '<div class="d-btns">' + T("span", "cta", c.cta, "d-btn") + T("span", "cta2", c.cta2, "d-btn d-ghost") + "</div></div></div>";
+  };
+
+  R.footer.D = function (c, ctx) {
+    var k = ctx.contact || {};
+    return '<div class="wrap d-foot"><div>' + T("b", "name", c.name || ctx.biz) + T("p", "blurb", c.blurb) + "</div>" +
+      "<div><b>Visit</b><ul>" + [k.area, k.address ? "Street address coming soon" : "", k.email || "Email coming soon"].filter(Boolean).map(function (v) { return "<li>" + esc(v) + "</li>"; }).join("") + "</ul></div>" +
+      "<div><b>Follow along</b><ul>" + list(c.social).map(function (s) { return "<li>" + esc(s) + ' <span class="d-dim">coming soon</span></li>'; }).join("") + "</ul></div>" +
+      '<div class="d-credit">' + T("span", "legal", c.legal) + T("span", "ctaLine", c.ctaLine) + "</div></div>";
   };
 
   window.KF_RENDER = R;

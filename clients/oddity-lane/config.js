@@ -1,10 +1,14 @@
 /*
   Oddity Lane Market / The House of Oddities: themed maker market, Nanaimo BC (Denise).
   Wording, themes and art come from Dan's sample site (the eye, gift bags, pendants, tarot, market flyers).
-  Three designs to mix:
+  Four designs to mix:
     A  Spooky Curiosity Shop   dark and mystical: the eye, candles, the oracle, oddities
     B  Bright Weird Fun        loud family fun: free entry, kids and pets, gift bags, draws, photo props
     C  Maker Market            clean and crafty: vendors, workshops and applying to vend
+    D  The Original            Dan's first Oddity Lane sample site, as built: blush pink, chunky ink outlines,
+                               the tap-me eye, themed flyers, the House Collection pendants, tarot cards.
+                               Looks exactly like the original with the "Blush & candy" colours and
+                               "Playful & hand-drawn" fonts; it also follows any other colour theme.
   Sections: services = what's on, gallery = the markets / makers, reviews = "Why people linger" perks (B)
   or clearly labelled placeholders (A, C). No real reviews yet: never replace them with made-up names.
   No phone, email, street address or market dates are confirmed yet, so none are shown.
@@ -53,9 +57,17 @@
       { id: "kraft", name: "Kraft & forest",
         bg: "#fbf6ec", surface: "#efe3cc", text: "#1f2a1f", muted: "#55604f",
         primary: "#2f5d3a", onPrimary: "#ffffff", accent: "#c8894a", onAccent: "#1d1206",
-        dark: "#1e3324", onDark: "#f6f0e2" }
+        dark: "#1e3324", onDark: "#f6f0e2" },
+      { id: "original", name: "Blush & candy",
+        bg: "#f9e8ee", surface: "#fffaf3", text: "#1f1a3a", muted: "#4a4170",
+        primary: "#1f1a3a", onPrimary: "#fffaf3", accent: "#f6d56b", onAccent: "#1f1a3a",
+        dark: "#241d4f", onDark: "#fffaf3",
+        hot: "#d6304f", cool: "#8fcbee", soft: "#f3d6e0" }
     ],
-    fonts: ["friendly", "classic", "sturdy", "modern"],
+    fonts: ["friendly", "classic", "sturdy", "modern",
+      { id: "original", name: "Playful & hand-drawn",
+        head: "'Fraunces', Georgia, serif", body: "'Fraunces', Georgia, serif",
+        weight: 800, google: ["Caveat:wght@500;700"] }],
 
     /* Base wording (used by Spooky Curiosity Shop, and as a fallback for the others). */
     content: {
@@ -291,6 +303,139 @@
             blurb: "A themed maker market, hands-on workshops and a shop of oddities on Oddity Lane in Nanaimo, BC.",
             links: ["What's on", "Workshops", "Makers", "Apply to vend", "Visit"],
             ctaLine: "Sell your weird."
+          }
+        } },
+
+      /* ---------- D: The Original (Dan's first Oddity Lane sample site, as built) ---------- */
+      { name: "The Original", blurb: "Playful, hand-drawn, blush pink with chunky outlines",
+        content: {
+          hero: {
+            brand: "Oddity Lane Market",
+            brandSub: "The House of Oddities",
+            mark: IMG + "eye-mark.svg",
+            nav: ["What's on", "Shop", "Workshops", "Vendors", "Visit"],
+            navCta: "I'm coming",
+            image: IMG + "eye-original.svg",
+            hint: "psst… tap the eye 3 times",
+            eyebrow: "The House of Oddities & Oddity Lane Market",
+            headline: "Where the Island comes to get weird.",
+            sub: "A creative retail experience: themed weekend markets packed with local makers, hands-on workshops, and a shop full of oddities on Oddity Lane.",
+            cta: "See what's on",
+            cta2: "I'm coming",
+            address: "Oddity Lane, Nanaimo, BC (street address coming soon). Open during market weekends.",
+            paths: [
+              { title: "Come get weird", body: "Free markets, kids and pets welcome, and something odd around every corner.",
+                points: ["Themed weekend markets with local vendors", "Gift bags, daily draws and giant photo props", "Workshops like custom perfume blending"],
+                cta: "What's on", cta2: "Pull a card" },
+              { title: "Become a vendor", body: "Makers, artists, readers and oddity dealers: bring your table to a crowd that came to play.",
+                points: ["Indoor space on Oddity Lane, every market themed", "See which markets still have spots", "Apply in about three minutes"],
+                cta: "Apply to vend", cta2: "Table info" }
+            ],
+            mini: { title: "Can't wait for market weekend? Shop the Market online.", sub: "Hold it now, pay when you pick it up.", image: IMG + "hold-bag.svg" },
+            next: { kicker: "Next up", title: "New markets are brewing", body: "Next market date coming soon. Follow along for the next date.", cta: "Follow along" }
+          },
+          services: {
+            title: "What's on",
+            intro: "Every market has a theme and a flyer to match. Tap a flyer to flip it for times, perks and directions.",
+            items: [
+              { theme: "candy", presents: "The House of Oddities presents", name: "Winter Weirdos", date: "Date coming soon", tag: "a Candyland weekend market" },
+              { theme: "mystic", presents: "The House of Oddities & a local co-host present", kicker: "Merry", name: "Mystics Market", date: "Date coming soon", tag: "& Solstice Celebration" },
+              { theme: "boxing", presents: "The House of Oddities presents", name: "Boxing Day", stamp: "SALE", date: "Date coming soon" },
+              { theme: "micro", presents: "The House of Oddities presents", kicker: "the", name: "Micro", suffix: "market", date: "Date coming soon", tag: "macro fun, micro things" }
+            ],
+            pastLabel: "Past markets:",
+            past: ["Hallo-Weird Weekend Market"],
+            workshop: {
+              note: "Workshops at the market",
+              name: "Perfume Lab: blend your own perfume",
+              desc: "Learn to blend a custom perfume with Perfume Lab, then take your creation home.",
+              includes: ["Hands-on guidance from Perfume Lab", "Take home your own custom blend", "Perfume Lab can reproduce your recipe later", "Small groups of 6 to 8"],
+              fine: "Small groups, hands-on, and you leave with something you made. Dates and times coming soon.",
+              pick: "1. Pick a time",
+              slots: ["4:00pm (TBC)", "5:00pm (TBC)", "6:00pm (TBC)", "7:00pm (TBC)"],
+              cta: "Book my seat"
+            }
+          },
+          gallery: {
+            title: "Shop the Market",
+            intro: "The market stays open between market weekends. Hold anything online, then pay when you pick it up. No card needed.",
+            steps: ["Tap \"Hold for me\" on anything you love", "Pick up at the next market, or at the shop by arrangement", "Pay at pickup. Holds last until the end of your pickup day"],
+            house: { note: "made in-house", name: "The House Collection", blurb: "Gemstone drop pendants on fine chains, made right here on Oddity Lane. Each one is one of a kind.", badge: "Sample items" },
+            holdLabel: "Hold for me",
+            items: [
+              { caption: "Amethyst drop pendant", kind: "The House Collection · Jewellery", image: IMG + "pendant-amethyst.svg" },
+              { caption: "Rose quartz drop pendant", kind: "The House Collection · Jewellery", image: IMG + "pendant-rose-quartz.svg" },
+              { caption: "Labradorite drop pendant", kind: "The House Collection · Jewellery", image: IMG + "pendant-labradorite.svg", sold: true },
+              { caption: "Citrine drop pendant", kind: "The House Collection · Jewellery", image: IMG + "pendant-citrine.svg" },
+              { caption: "Moonstone drop pendant", kind: "The House Collection · Jewellery", image: IMG + "pendant-moonstone.svg" },
+              { caption: "Green aventurine drop", kind: "The House Collection · Jewellery", image: IMG + "pendant-aventurine.svg" }
+            ],
+            cta: "Random weird find"
+          },
+          about: {
+            title: "Sell your weird",
+            body: "Bring your handmade, vintage, mystical and wonderfully odd things to Nanaimo's weirdest little market.",
+            why: [
+              { name: "Themed markets people come out for", desc: "Candyland, Mystics, Micro: each market has its own look, flyer and reason to visit." },
+              { name: "Shoppers who stay a while", desc: "Gift bags, draws and photo props keep guests browsing. The daily draw sends them straight to your table." },
+              { name: "Indoor and on Oddity Lane", desc: "A real retail space. No tents, no wind, no rain drama." },
+              { name: "Small and friendly", desc: "Makers, artists, readers and oddity dealers all welcome. First-timers too." }
+            ],
+            stepsTitle: "Vendor & workshop application",
+            points: ["About you", "What you make", "Which markets", "Setup & links", "Review & send: spots are confirmed by email"],
+            cta: "Apply to vend",
+            partners: [
+              { name: "Co-host a market", desc: "Merry Mystics is co-presented with a local co-host. Got a crew, a theme, or a following? Let's throw one together.", cta: "Pitch a co-hosted market" },
+              { name: "Host a workshop", desc: "Teach something hands-on, like the Perfume Lab perfume sessions. We handle the space and the sign-ups.", cta: "Pitch a workshop" }
+            ]
+          },
+          reviews: {
+            title: "The fun stuff",
+            intro: "Why people linger. Details change by market, so check each flyer.",
+            items: [
+              { name: "Gift bags for the first 33 weirdos", quote: "Each market day, the first 33 people through the door walk out with a gift bag." },
+              { name: "Daily draws", quote: "Spend $10 or more with any vendor and you're in the draw. Merry Mystics runs six draws a day." },
+              { name: "Giant photo props", quote: "Oversized, slightly ridiculous, and made for your camera roll. Pets encouraged." },
+              { name: "Candy wonderland", quote: "For kids of all ages at Winter Weirdos. Free entry, always." },
+              { name: "Solstice night", quote: "Hot chocolate and mulled apple cider by donation. Bring in the new season with intention." }
+            ],
+            bagsCta: "Am I one of the first 33?",
+            bagsAnswer: "Strong first-33 energy. Bag #7 says: arrive early, bring a friend, wear something odd.",
+            bagsFine: "Just for fun: this button can't hold a bag for you. Real bags go to the first 33 in line.",
+            tarot: {
+              title: "Pull a card",
+              intro: "The Oddity Lane oracle knows which market you need. Pick one card. No peeking.",
+              back: IMG + "tarot-back.svg",
+              open: 1,
+              cards: [
+                { num: "I", glyph: "▲", name: "The Gnome of Oddity Lane" },
+                { num: "II", glyph: "✿", name: "The Candy Witch" },
+                { num: "V", glyph: "❂", name: "The Crystal Keeper" }
+              ],
+              reading: {
+                name: "The Candy Witch",
+                fortune: "Sweetness incoming. Say yes to the silly photo.",
+                go: "Winter Weirdos Weekend Market (date coming soon)",
+                look: "The giant props and the candy wonderland",
+                cta: "Show me that market"
+              },
+              hint: "choose wisely… or don't"
+            }
+          },
+          contact: {
+            title: "Come visit",
+            body: "The shop opens during market weekends. The next market date is coming soon.",
+            map: IMG + "map-original.svg",
+            hours: [{ days: "Shop", time: "Open during market weekends" }, { days: "Regular shop hours", time: "coming soon" }],
+            cta: "Directions",
+            cta2: "Email us"
+          },
+          footer: {
+            name: "The House of Oddities & Oddity Lane Market",
+            blurb: "Where the Island comes to get weird. Stay weird.",
+            social: ["Instagram", "TikTok", "Facebook"],
+            legal: "© The House of Oddities",
+            ctaLine: "Stay weird."
           }
         } }
     ]

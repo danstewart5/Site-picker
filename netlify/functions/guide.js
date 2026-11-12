@@ -88,7 +88,7 @@ function cleanContext(c) {
   if (c.reactions && typeof c.reactions === "object") {
     for (const id of Object.keys(c.reactions)) {
       if (!ids.includes(id) || !c.reactions[id] || typeof c.reactions[id] !== "object") continue;
-      for (const l of ["A", "B", "C"]) {
+      for (const l of ["A", "B", "C", "D"]) {
         const list = arr(c.reactions[id][l], 9).map((x) => str(x, 30)).filter(Boolean);
         if (list.length) (reactions[id] = reactions[id] || {})[l] = list;
       }
@@ -101,7 +101,7 @@ function cleanContext(c) {
     view: ["design", "addons", "review", "done"].includes(c.view) ? c.view : "design",
     step: { type: str(step.type, 20), id: str(step.id, 40), label: str(step.label, 60), index: step.index | 0, total: step.total | 0 },
     sections,
-    designs: arr(c.designs, 3).filter((d) => d && /^[ABC]$/.test(d.id)).map((d) => ({ id: d.id, name: str(d.name, 60) })),
+    designs: arr(c.designs, 4).filter((d) => d && /^[A-D]$/.test(d.id)).map((d) => ({ id: d.id, name: str(d.name, 60) })),
     palette: { current: str(c.palette && c.palette.current, 60), options: arr(c.palette && c.palette.options, 8).map((x) => str(x, 60)).filter(Boolean) },
     font: { current: str(c.font && c.font.current, 60), options: arr(c.font && c.font.options, 8).map((x) => str(x, 60)).filter(Boolean) },
     extras: arr(c.extras, 30).map((x) => str(x, 60)).filter(Boolean),
@@ -128,6 +128,9 @@ function cleanMessages(list) {
 function systemPrompt(ctx) {
   const owner = "Dan (Keen Falcon)";
   const designs = ctx.designs.map((d) => d.id + (d.name ? " (" + d.name + ")" : "")).join(", ") || "A, B, C";
+  const ids = ctx.designs.length ? ctx.designs.map((d) => d.id) : ["A", "B", "C"];
+  const count = ["no", "one", "two", "three", "four"][ids.length] || String(ids.length);
+  const tapList = ids.length > 1 ? ids.slice(0, -1).join(", ") + " or " + ids[ids.length - 1] : ids[0];
   const sections = ctx.sections.map((s) => s.label + " [id: " + s.id + "]").join(", ");
   const picks = ctx.sections.map((s) => "- " + s.label + ": " + (s.picked ? "picked " + s.picked : "not picked yet, viewing " + (s.showing || "A")) +
     (s.edits ? ", " + s.edits + " wording change(s)" : "") + (s.note ? ", note: \"" + s.note + "\"" : "")).join("\n");
@@ -145,7 +148,7 @@ function systemPrompt(ctx) {
       (ctx.industry ? " (" + ctx.industry + " business)" : "") + " choose how their new website will look. " + owner + " builds the website and follows up personally.",
     "",
     "How the picker works:",
-    "- Step 1, Design: the sample site is split into sections: " + sections + ". Each section has three designs: " + designs + ". The client taps A, B or C in the panel to see each one and pick it. After the sections come Colours and Fonts.",
+    "- Step 1, Design: the sample site is split into sections: " + sections + ". Each section has " + count + " designs: " + designs + ". The client taps " + tapList + " in the panel to see each one and pick it. After the sections come Colours and Fonts.",
     "- \"Edit text\" lets them tap any heading or paragraph on the page and type their own words.",
     "- Under each section's options there is a box for anything else (a different photo, another service, a new section), and reaction buttons like Love it, Good, Not for me, The photos, The layout.",
     "- Step 2, Extras: an optional checklist of add-ons.",

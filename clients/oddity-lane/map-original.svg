@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="400" height="260">
+<rect width="400" height="260" fill="#fffaf3"/>
+<g stroke="#1f1a3a" stroke-width="2" fill="none" opacity=".25"><path d="M0 70h400M0 190h400M90 0v260M300 0v260"/></g>
+<path d="M-10 132 C 90 120, 160 150, 410 128" stroke="#f5b8cb" stroke-width="30" fill="none" stroke-linecap="round"/>
+<path d="M-10 132 C 90 120, 160 150, 410 128" stroke="#1f1a3a" stroke-width="2" stroke-dasharray="8 8" fill="none"/>
+<text x="40" y="118" font-family="'Comic Sans MS', 'Segoe Print', cursive" font-size="22" font-weight="700" fill="#1f1a3a">Oddity Ln</text>
+<g transform="translate(232 70)"><path d="M18 0 C 32 0 40 12 36 24 C 32 36 18 52 18 52 C 18 52 4 36 0 24 C -4 12 4 0 18 0Z" fill="#d6304f" stroke="#1f1a3a" stroke-width="2.5"/><circle cx="18" cy="20" r="7" fill="#fff" stroke="#1f1a3a" stroke-width="2"/><circle cx="18" cy="20" r="3" fill="#1f1a3a"/></g>
+<text x="224" y="66" text-anchor="end" font-family="'Comic Sans MS', 'Segoe Print', cursive" font-size="22" font-weight="700" fill="#d6304f">get weird here</text>
+<text x="20" y="246" font-family="Georgia, serif" font-size="12" fill="#4a4170">Not to scale. Street address coming soon.</text>
+</svg>
