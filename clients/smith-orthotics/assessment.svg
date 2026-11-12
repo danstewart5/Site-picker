@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="t">
+<title id="t">Illustration of a partner clinic prescription for custom foot orthotics</title>
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7eee4"/><stop offset="1" stop-color="#ecdcc8"/></linearGradient>
+<linearGradient id="nbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22395a"/><stop offset="1" stop-color="#13233a"/></linearGradient>
+<linearGradient id="shell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22395a"/><stop offset="1" stop-color="#13233a"/></linearGradient>
+<linearGradient id="top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c98d55"/><stop offset="1" stop-color="#8b5a2b"/></linearGradient>
+<linearGradient id="plaster" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dfe3e8"/></linearGradient>
+<radialGradient id="arch" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#13233a" flood-opacity=".22"/></filter>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+<g id="insole">
+<path d="M0 -330 C 70 -330 112 -270 116 -190 C 120 -110 96 -50 96 10 C 96 80 112 140 106 210 C 98 290 52 330 0 330 C -52 330 -92 292 -96 220 C -100 150 -70 80 -78 10 C -86 -60 -124 -120 -118 -200 C -112 -280 -64 -330 0 -330 Z" fill="url(#shell)"/>
+<path d="M0 -312 C 60 -312 96 -258 100 -188 C 104 -116 82 -56 82 10 C 82 78 96 138 90 204 C 84 274 46 312 0 312 C -46 312 -80 278 -82 214 C -86 148 -56 80 -64 10 C -72 -58 -108 -118 -102 -194 C -96 -266 -54 -312 0 -312 Z" fill="url(#top)"/>
+<ellipse cx="-38" cy="40" rx="44" ry="120" fill="url(#arch)"/>
+<g fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="2">
+<path d="M0 -270 C 48 -270 76 -226 78 -182 C 80 -126 62 -70 62 10 C 62 74 74 132 70 196 C 66 252 36 282 0 282 C -36 282 -62 254 -62 206 C -64 146 -38 80 -44 10 C -50 -60 -84 -118 -80 -184 C -76 -238 -42 -270 0 -270 Z"/>
+<path d="M0 -226 C 34 -226 54 -196 56 -168 C 58 -120 42 -70 42 10 C 42 70 52 124 50 186 C 48 228 26 250 0 250 C -26 250 -42 228 -42 196 C -44 142 -20 80 -24 10 C -28 -60 -58 -114 -56 -170 C -54 -204 -30 -226 0 -226 Z"/>
+</g>
+<ellipse cx="0" cy="230" rx="40" ry="50" fill="#13233a" fill-opacity=".14"/>
+</g>
+<path id="foot" d="M150 -400 L150 470 C150 540 140 590 175 615 C 200 635 260 632 300 625 C 360 605 420 600 470 615 C 540 632 600 640 650 640 C 690 640 708 626 704 610 C 700 590 664 580 620 570 C 540 548 470 512 400 470 C 330 428 290 396 282 300 L282 -400 Z"/>
+
+</defs>
+<rect width="1200" height="900" fill="url(#bg)"/><path d="M100 0v900M200 0v900M300 0v900M400 0v900M500 0v900M600 0v900M700 0v900M800 0v900M900 0v900M1000 0v900M1100 0v900M0 100h1200M0 200h1200M0 300h1200M0 400h1200M0 500h1200M0 600h1200M0 700h1200M0 800h1200" stroke="#8b5a2b" stroke-opacity=".08" stroke-width="2" fill="none"/>
+<g filter="url(#sh)"><rect x="350" y="120" width="500" height="690" rx="26" fill="url(#nbg)"/></g>
+<rect x="385" y="170" width="430" height="610" rx="12" fill="#fff"/>
+<rect x="510" y="96" width="180" height="64" rx="16" fill="#8b5a2b"/><circle cx="600" cy="118" r="10" fill="#f7eee4"/>
+<g font-family="Inter, system-ui, sans-serif">
+<text x="425" y="262" font-family="Fraunces, Georgia, serif" font-size="60" font-weight="600" fill="#8b5a2b">Rx</text>
+<text x="520" y="232" font-size="15" font-weight="600" fill="#6a778a" letter-spacing="2">PRESCRIPTION</text>
+<text x="520" y="260" font-size="21" font-weight="600" fill="#13233a">Custom foot orthotics</text>
+<rect x="440" y="300" width="300" height="10" rx="5" fill="#dfe3e8"/><rect x="440" y="330" width="250" height="10" rx="5" fill="#dfe3e8"/><rect x="440" y="360" width="280" height="10" rx="5" fill="#dfe3e8"/>
+<g transform="translate(530 560) scale(.42)"><use href="#insole"/></g>
+<g transform="translate(670 560) scale(-.42 .42)"><use href="#insole"/></g>
+<g fill="none" stroke="#8b5a2b" stroke-width="3" stroke-dasharray="8 8"><path d="M505 560 C 470 540 450 500 455 450"/><path d="M695 560 C 730 540 750 500 745 450"/></g>
+<text x="455" y="440" text-anchor="middle" font-size="14" font-weight="600" fill="#8b5a2b">ARCH</text><text x="745" y="440" text-anchor="middle" font-size="14" font-weight="600" fill="#8b5a2b">ARCH</text>
+<path d="M440 735 c20 -30 34 10 50 -8 s26 -26 40 0 s30 10 52 -14" fill="none" stroke="#13233a" stroke-width="3.5" stroke-linecap="round"/>
+<rect x="440" y="748" width="200" height="3" fill="#cdd5df"/>
+</g>
+<g transform="translate(930 560) rotate(32)" filter="url(#sh)"><rect x="-16" y="-170" width="32" height="250" rx="12" fill="#13233a"/><rect x="-16" y="-170" width="32" height="40" rx="12" fill="#8b5a2b"/><path d="M-16 80 h32 l-16 46 z" fill="#e9c9a8"/><path d="M-5 112 h10 l-5 14 z" fill="#13233a"/></g>
+<g transform="translate(830 150)" filter="url(#sh)"><circle r="34" fill="#13233a"/><path d="M-13.600000000000001 0 l9.520000000000001 10.2 l18.700000000000003 -20.4" fill="none" stroke="#e3ad74" stroke-width="6.800000000000001" stroke-linecap="round" stroke-linejoin="round"/></g>
+</svg>

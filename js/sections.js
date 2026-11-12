@@ -76,6 +76,7 @@
     return '<span class="nav-links" aria-hidden="true"><span>' + esc(ctx.labels.services) + "</span><span>" + esc(ctx.labels.gallery) + "</span><span>" + esc(ctx.labels.about) + "</span><span>" + esc(ctx.labels.contact) + "</span></span>";
   }
   function logo(ctx) {
+    if (ctx.logo) return '<span class="logo logo-has-img"><img class="logo-img" src="' + esc(ctx.logo) + '" alt="' + esc(ctx.biz) + '"></span>';
     return '<span class="logo"><span class="logo-mark" aria-hidden="true"></span><span>' + esc(ctx.biz) + "</span></span>";
   }
 

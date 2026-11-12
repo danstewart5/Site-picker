@@ -10,6 +10,7 @@
 */
 window.KF_CLIENT = {
   businessName: "Business Name",
+  // logo: "/clients/<slug>/logo.png", // optional: real logo image instead of the drawn mark + name
   industry: "trades",                 // "trades", "medical" or "retail" (highlights matching extras)
   contact: {
     phone: "250-555-0100",

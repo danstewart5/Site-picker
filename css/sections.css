@@ -103,6 +103,8 @@
 .site .nav { display: flex; align-items: center; gap: 18px; max-width: 1120px; margin: 0 auto; padding: 14px 20px; position: relative; z-index: 2; }
 .site .logo { display: flex; align-items: center; gap: 10px; margin-right: auto; font-family: var(--f-head); font-weight: 800; font-size: 1.15rem; text-transform: var(--head-tt); line-height: 1.15; }
 .site .logo-mark { width: 30px; height: 30px; flex: none; border-radius: 9px; background: linear-gradient(135deg, var(--c-primary) 50%, var(--c-accent) 50%); }
+/* Optional real logo (client config "logo"): sits on a white tile so dark text stays readable on any background. */
+.site .logo-img { width: auto; height: 50px; max-width: 190px; object-fit: contain; background: #fff; padding: 4px 8px; border-radius: 8px; }
 .site .nav-links { display: none; gap: 24px; font-weight: 600; font-size: .95rem; }
 .site .nav .btn { display: none; }
 .site .burger { display: grid; place-items: center; width: 44px; height: 44px; }
@@ -126,6 +128,7 @@
 .site .hero-b-bg { position: absolute; inset: 0; }
 .site .hero-b::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.25) 40%, rgba(0,0,0,.7)); }
 .site .hero-b > .nav, .site .hero-b-body { position: relative; z-index: 2; }
+.site .hero-b > .nav { width: 100%; } /* stretch the bar so the logo sits left and the menu right */
 .site .hero-b-body { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
   max-width: 860px; margin: 0 auto; padding: 40px 20px 80px; }
 .site .hero-b-body h1 { font-size: clamp(2.3rem, 8.5cqi, 5rem); text-shadow: 0 2px 20px rgba(0,0,0,.3); }

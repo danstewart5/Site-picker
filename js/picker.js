@@ -97,7 +97,7 @@
   function font() { return fonts.filter(function (f) { return f.id === S.font; })[0] || fonts[0]; }
   function ctx() {
     return {
-      biz: C.businessName, contact: C.contact || {},
+      biz: C.businessName, contact: C.contact || {}, logo: C.logo || "",
       labels: { services: C.navLabels && C.navLabels.services || labelOf("services"),
                 gallery: C.navLabels && C.navLabels.gallery || labelOf("gallery"),
                 about: labelOf("about"), contact: labelOf("contact") }

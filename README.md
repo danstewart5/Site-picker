@@ -26,12 +26,12 @@ clients/_template/      Copy this to start a new client
 
 1. Copy `clients/_template` to `clients/<name>`. Use lowercase letters, numbers and dashes only, e.g. `clients/smith-plumbing`.
 2. Open `clients/<name>/config.js` and fill in the business name, industry (`trades`, `medical` or `retail`), contact details, colour themes and wording for each section.
-3. Images: put photos in the client's folder and use `"/clients/<name>/photo.jpg"`, or leave the drawn placeholders (`"ph:room:Kitchen"`).
+3. Images: put photos in the client's folder and use `"/clients/<name>/photo.jpg"`, or leave the drawn placeholders (`"ph:room:Kitchen"`). For a real logo, add `logo: "/clients/<name>/logo.png"` (it shows on a small white tile so it reads on light and dark backgrounds).
 4. Commit and push to GitHub. Netlify updates the site in about a minute.
 5. Send the client: `https://YOUR-SITE/p/<name>`
    (the long form `https://YOUR-SITE/picker.html?client=<name>` also works).
 
-Each design uses its own layout: design 1 = layout A, design 2 = B, design 3 = C. Any section's wording can be changed per design inside `designs: [...]`. The three demo clients (`tidewater`, `northshore`, `harbour-pine`) are good examples to copy from.
+Each design uses its own layout: design 1 = layout A, design 2 = B, design 3 = C. Any section's wording can be changed per design inside `designs: [...]`. The three demo clients (`tidewater`, `northshore`, `harbour-pine`) are good examples to copy from, and `smith-orthotics` is a real client set up the same way.
 
 To hide extras that don't fit a client, add `addonsHide: ["online-store", "blog"]` to their config. Extras that suit the client's industry get a "Great for ..." badge automatically.
 
