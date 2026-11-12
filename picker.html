@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#ffffff">
+  <title>Design your website</title>
+  <meta name="description" content="Pick the look of your new website, section by section.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/css/picker.css">
+  <link rel="stylesheet" href="/css/sections.css">
+</head>
+<body>
+  <a class="k-skip" href="#main">Skip to content</a>
+
+  <header class="k-top">
+    <div class="k-title">
+      <strong id="k-biz">Your new website</strong>
+      <span>Design picker</span>
+    </div>
+    <nav aria-label="Steps">
+      <ol class="k-steps">
+        <li><button type="button" data-view="design"><span class="n">1</span><span class="lbl">Design</span></button></li>
+        <li><button type="button" data-view="addons"><span class="n">2</span><span class="lbl">Extras</span></button></li>
+        <li><button type="button" data-view="review"><span class="n">3</span><span class="lbl">Send</span></button></li>
+      </ol>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <div id="k-loading" class="k-msg" role="status">Loading your designs…</div>
+    <div id="k-error" class="k-msg" hidden></div>
+
+    <!-- Step 1: pick sections -->
+    <div id="view-design" class="k-design" hidden>
+      <aside id="k-panel" class="k-panel" aria-label="Design choices">
+        <div class="k-panel-head">
+          <div class="k-progress">
+            <span id="k-progress-text">0 of 7 sections picked</span>
+            <div class="k-progress-bar" aria-hidden="true"><span id="k-progress-fill"></span></div>
+          </div>
+        </div>
+        <div id="k-rows" class="k-rows"></div>
+        <div class="k-panel-nav">
+          <button type="button" class="k-icon-btn" id="k-prev" aria-label="Previous section">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button type="button" class="k-btn small k-expand" id="k-expand" aria-expanded="false" aria-controls="k-rows">All sections</button>
+          <span class="k-step-count" id="k-step-count">1 / 9</span>
+          <button type="button" class="k-btn small toggle" id="k-edit-mobile" aria-pressed="false">Edit text</button>
+          <button type="button" class="k-icon-btn" id="k-next" aria-label="Next section">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div class="k-panel-foot">
+          <button type="button" class="k-btn primary" style="width:100%" data-go="addons">Next: choose extras</button>
+          <p class="k-credit" id="k-credit"></p>
+        </div>
+      </aside>
+
+      <div class="k-preview">
+        <div class="k-preview-bar">
+          <div class="k-seg" role="group" aria-label="Preview size">
+            <button type="button" data-size="desktop" aria-pressed="true">Computer</button>
+            <button type="button" data-size="phone" aria-pressed="false">Phone</button>
+          </div>
+          <button type="button" class="k-btn small toggle" id="k-edit" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>
+            Edit text
+          </button>
+        </div>
+        <div id="k-edit-banner" class="k-edit-banner" role="status" hidden>
+          <span>Tap any heading or paragraph to change the wording.</span>
+          <button type="button" class="k-btn small" id="k-edit-done">Done</button>
+        </div>
+        <div id="k-frame" class="k-site-frame">
+          <div id="site" class="site" aria-label="Website preview"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: extras -->
+    <div id="view-addons" hidden>
+      <div class="k-page">
+        <h1 tabindex="-1">Any extras?</h1>
+        <p class="k-intro">Tick anything you'd like on your site. Not sure? Leave it, and we can talk it through.</p>
+        <div id="k-addon-groups"></div>
+      </div>
+      <div class="k-bottom-bar">
+        <button type="button" class="k-btn" data-go="design">Back</button>
+        <span class="grow" id="k-addon-count" aria-live="polite">0 extras picked</span>
+        <button type="button" class="k-btn primary" data-go="review">Review &amp; send</button>
+      </div>
+    </div>
+
+    <!-- Step 3: review + send -->
+    <div id="view-review" hidden>
+      <div class="k-page">
+        <h1 tabindex="-1">Review your picks</h1>
+        <p class="k-intro">Check everything looks right, add your details, and send it over.</p>
+        <div id="k-summary"></div>
+
+        <form id="k-send" class="k-form" method="POST" action="/" novalidate>
+          <h2>Your details</h2>
+          <input type="hidden" name="form-name" value="site-picks">
+          <p class="k-hp"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+          <div class="k-two">
+            <div class="k-field"><label for="f-name">Your name</label><input id="f-name" name="name" autocomplete="name" required></div>
+            <div class="k-field"><label for="f-business">Business name</label><input id="f-business" name="business" autocomplete="organization"></div>
+          </div>
+          <div class="k-two">
+            <div class="k-field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>
+            <div class="k-field"><label for="f-phone">Phone <span class="opt">(optional)</span></label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel"></div>
+          </div>
+          <div class="k-field"><label for="f-notes">Anything else? <span class="opt">(optional)</span></label>
+            <textarea id="f-notes" name="notes" placeholder="Colours you love, sites you like, photos you have, deadlines…"></textarea></div>
+          <div id="k-send-error" class="k-error" role="alert" hidden></div>
+          <button type="submit" class="k-btn primary" id="k-submit">Send my picks</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Thank you -->
+    <div id="view-done" hidden>
+      <div class="k-page k-done">
+        <div class="tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+        <h1 tabindex="-1" id="k-done-title">Thanks! Your picks are in.</h1>
+        <p class="k-intro" id="k-done-text"></p>
+        <button type="button" class="k-btn" data-go="design">Back to my design</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Static copy of the form so Netlify detects it at deploy time. Keep field names in sync with picker.js. -->
+  <form name="site-picks" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="site-picks">
+    <input name="bot-field">
+    <input name="client">
+    <input name="name">
+    <input name="business">
+    <input name="email">
+    <input name="phone">
+    <textarea name="notes"></textarea>
+    <textarea name="sections"></textarea>
+    <textarea name="style"></textarea>
+    <textarea name="text_changes"></textarea>
+    <textarea name="addons"></textarea>
+    <textarea name="picks_json"></textarea>
+  </form>
+
+  <script src="/js/settings.js"></script>
+  <script src="/js/defaults.js"></script>
+  <script src="/js/addons.js"></script>
+  <script src="/js/sections.js"></script>
+  <script src="/js/picker.js"></script>
+</body>
+</html>

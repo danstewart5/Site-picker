@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Site picker</title>
+  <link rel="stylesheet" href="/css/picker.css">
+  <style>
+    .k-list { display: grid; gap: 12px; margin: 18px 0 28px; padding: 0; list-style: none; }
+    .k-list li { background: #fff; border: 1px solid var(--k-line); border-radius: var(--k-radius); padding: 16px; }
+    .k-list h2 { margin: 0 0 2px; font-size: 1.1rem; }
+    .k-list p { margin: 0 0 12px; color: var(--k-ink-2); font-size: .93rem; }
+    .k-list .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .k-list code { font-size: .85rem; background: var(--k-bg); padding: 2px 6px; border-radius: 6px; word-break: break-all; }
+    .k-tag { display: inline-block; font-size: .72rem; font-weight: 750; padding: 2px 8px; border-radius: 99px; background: var(--k-brand-soft); color: var(--k-brand); margin-left: 6px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <main class="k-page" style="padding-bottom:40px">
+    <h1>Site picker</h1>
+    <p class="k-intro">Internal page. Each client gets their own link. Demo clients for testing:</p>
+    <ul class="k-list">
+      <li>
+        <h2>Tidewater Renovations <span class="k-tag">Trades</span></h2>
+        <p>Renovation contractor, Victoria BC</p>
+        <div class="row"><a class="k-btn primary" href="/picker.html?client=tidewater">Open picker</a></div>
+        <p style="margin:10px 0 0">Client link: <code class="k-link" data-slug="tidewater"></code></p>
+      </li>
+      <li>
+        <h2>Northshore Orthotics &amp; Foot Care <span class="k-tag">Medical</span></h2>
+        <p>Orthotics clinic, Nanaimo BC</p>
+        <div class="row"><a class="k-btn primary" href="/picker.html?client=northshore">Open picker</a></div>
+        <p style="margin:10px 0 0">Client link: <code class="k-link" data-slug="northshore"></code></p>
+      </li>
+      <li>
+        <h2>Harbour &amp; Pine Goods <span class="k-tag">Retail</span></h2>
+        <p>Gift and home goods shop, Parksville BC</p>
+        <div class="row"><a class="k-btn primary" href="/picker.html?client=harbour-pine">Open picker</a></div>
+        <p style="margin:10px 0 0">Client link: <code class="k-link" data-slug="harbour-pine"></code></p>
+      </li>
+    </ul>
+    <p class="k-intro">To add a client, copy <code>clients/_template</code> to <code>clients/&lt;name&gt;</code>, fill it in, and push. Submissions arrive in Netlify under Forms → site-picks.</p>
+    <p class="k-credit">Keen Falcon</p>
+  </main>
+  <script>
+    document.querySelectorAll(".k-link").forEach(function (el) {
+      el.textContent = location.origin + "/p/" + el.getAttribute("data-slug");
+    });
+  </script>
+</body>
+</html>
