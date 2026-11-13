@@ -90,3 +90,7 @@ Also on each section: quick reaction chips ("Love it", "The photos", "Too busy"â
 - Progress saves in the client's browser, so they can close the page and come back on the same phone.
 - The whole site sends a `noindex` header so client pages don't show up in Google.
 - Change your contact details in `js/settings.js`.
+
+## Picks into the lead tracker
+
+Every send that Netlify Forms accepts is also copied into Dan's lead tracker (https://sitewalk-leads.pages.dev), filed under **Keen Falcon**, list "Keen Falcon studio picks", source "Site studio picks" (or "Site studio demo (try it yourself)"). Name, business, email, phone, notes, the picked sections, extras, price and any `utm_*` tags go along. It's in `js/picker.js` (`copyToTracker`): a fire-and-forget request after the Netlify post succeeds, so Netlify's copy and emails are unchanged and a tracker problem never shows to the visitor. A filled honeypot sends nothing. The intake key (`lk_studio_â€¦`) is public by design: it only adds leads to Keen Falcon, only from keenfalconstudio.netlify.app, rate-limited by the tracker. To stop it: `update lead_sources set active = false where key like 'lk_studio_%';` in the Lead-tracker SQL editor.
