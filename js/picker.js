@@ -749,6 +749,37 @@
     el.setAttribute("aria-invalid", "true"); el.focus();
   }
 
+  /* Lead tracker copy: every send also lands in Dan's lead tracker (https://sitewalk-leads.pages.dev), filed under
+     Keen Falcon, list "Keen Falcon studio picks". Netlify Forms still gets everything exactly as before; this copy
+     never blocks, delays or changes the send. The key is public by design: it can only add a lead to Keen Falcon,
+     only from this site's address, and the tracker limits how many. */
+  var TRACKER_URL = "https://cgrqejsigmzvlhlmvjbx.supabase.co/functions/v1/lead-capture";
+  var TRACKER_KEY = "lk_studio_408b38e4eb3193444551e45b";
+  function trackerBody(data) {
+    var q = new URLSearchParams(location.search), utm = {};
+    q.forEach(function (v, k) { if (/^utm_/.test(k)) utm[k] = v.slice(0, 200); });
+    var details = { client: data.client, sections: data.sections, style: data.style, extras: data.addons,
+      price_estimate: data.price_estimate, change_requests: data.change_requests, page: location.origin + location.pathname };
+    Object.keys(utm).forEach(function (k) { details[k] = utm[k]; });
+    return Object.assign({
+      key: TRACKER_KEY, form_name: "site-picks", "bot-field": data["bot-field"],
+      source: DEMO ? "Site studio demo (try it yourself)" : "Site studio picks",
+      next_action: DEMO ? "Call about building their site" : "Customize their picks and send back",
+      external_id: "picks:" + slug + ":" + Date.now(),
+      name: data.name, company: data.business, email: data.email, phone: data.phone, message: data.notes,
+      details: details
+    }, utm);
+  }
+  function copyToTracker(data) {
+    try {
+      if (!window.fetch || data["bot-field"]) return;
+      // text/plain + key in the body: a "simple" request (no preflight); keepalive lets it finish if the page moves on
+      fetch(TRACKER_URL, { method: "POST", keepalive: true, headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify(trackerBody(data)) })
+        .catch(function () { /* best effort */ });
+    } catch (e) { /* never get in the way of the send */ }
+  }
+  window.__studioTrackerBody = trackerBody; // for tests
+
   function submit(ev) {
     ev.preventDefault();
     var box = $("#k-send-error");
@@ -762,6 +793,7 @@
     fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(data).toString() })
       .then(function (r) { if (!r.ok) throw new Error("status " + r.status); })
       .then(function () {
+        copyToTracker(data);
         S.sent = true;
         var first = data.name.split(" ")[0];
         $("#k-done-title").textContent = "Thanks, " + first + "! Your picks are in.";
