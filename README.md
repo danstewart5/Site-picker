@@ -62,6 +62,15 @@ Demo mode (`?demo=1`): no design helper (no API cost), progress saved separately
 2. Build command: leave empty. Publish directory: `.` (the root). Netlify reads this from `netlify.toml` anyway.
 3. Deploy. Optionally add a custom domain under Domain management.
 
+## Studio activity pings (demo only)
+
+The public demo also posts to a second form, **studio-activity** (`js/activity.js`), so you get a heads-up when someone uses it:
+
+- `started`: first real tap on /try (a template button) or in the demo picker. Once per browser session. No personal info: template, page, referrer/UTM, mobile or desktop, time. Nothing is sent on page load.
+- `sent`: when they send their picks (template + a one-line picks summary). Their contact details still go only to **site-picks**.
+
+Real client links (no `?demo=1`) send no activity pings.
+
 ## Where submissions go
 
 Netlify → your site → **Forms** → **site-picks**. Each submission has the client's name, business, email, phone, notes, and readable fields for sections, style, text changes, reactions ("what you liked"), extras and whether the design helper was used, plus `picks_json` with everything in one block.
