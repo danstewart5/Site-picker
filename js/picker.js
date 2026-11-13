@@ -171,6 +171,7 @@
     $("#k-biz").textContent = C.businessName;
     $("#f-business").placeholder = DEMO ? "Your business name" : C.businessName;
     if (DEMO) setupDemo();
+    if (DEMO && window.KF_ACTIVITY) KF_ACTIVITY.watch(function () { return KF_ACTIVITY.template(slug, C.businessName); });
     if (SET.studio) {
       $("#k-credit").innerHTML = "Design picker by " + (SET.site ? '<a href="' + esc(SET.site) + '" target="_blank" rel="noopener">' + esc(SET.studio) + "</a>" : esc(SET.studio));
     }
@@ -743,6 +744,13 @@
     };
   }
 
+  /* Short one-line summary for the studio-activity "sent" ping (no contact details). */
+  function picksSummary() {
+    var secs = sections.map(function (s) { return s.label + " " + (S.picks[s.id] || "-"); }).join(", ");
+    return secs + " | Colours: " + palette().name + " | Fonts: " + font().name +
+      " | Extras: " + (S.addons.length ? S.addons.map(addonName).join(", ") : "none");
+  }
+
   function invalid(id, msg) {
     var box = $("#k-send-error"), el = $("#" + id);
     box.textContent = msg; box.hidden = false;
@@ -763,6 +771,7 @@
       .then(function (r) { if (!r.ok) throw new Error("status " + r.status); })
       .then(function () {
         S.sent = true;
+        if (DEMO && window.KF_ACTIVITY) KF_ACTIVITY.send("sent", KF_ACTIVITY.template(slug, C.businessName), picksSummary());
         var first = data.name.split(" ")[0];
         $("#k-done-title").textContent = "Thanks, " + first + "! Your picks are in.";
         if (DEMO) $("#k-done-text").innerHTML = esc(SET.owner || "We") + " will be in touch soon to talk about building the real thing for your business. " + (contactLine() ? "Can't wait? " + contactLine() : "");

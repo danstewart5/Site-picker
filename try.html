@@ -41,5 +41,30 @@
     </ul>
     <p class="t-foot"><a href="https://keenfalcon.ca">keenfalcon.ca</a></p>
   </main>
+
+  <!-- Static copy of the studio-activity form so Netlify detects it at deploy time. Sent by js/activity.js. -->
+  <form name="studio-activity" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="studio-activity">
+    <input name="bot-field">
+    <input name="event">
+    <input name="template">
+    <textarea name="picks"></textarea>
+    <input name="page">
+    <input name="referrer">
+    <input name="device">
+    <input name="time">
+  </form>
+
+  <script src="/js/activity.js"></script>
+  <script>
+    /* "started" when they tap a template (once per session). The ping uses keepalive, so the page opens as normal. */
+    document.querySelectorAll(".t-btn").forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        if (!e.isTrusted || !window.KF_ACTIVITY) return;
+        var slug = (a.getAttribute("href").match(/client=([\w-]+)/) || [])[1];
+        KF_ACTIVITY.started(KF_ACTIVITY.template(slug));
+      });
+    });
+  </script>
 </body>
 </html>
